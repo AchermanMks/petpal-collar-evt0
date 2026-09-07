@@ -1,10 +1,10 @@
 # 板级功能调试进度
 
-板子：________（LM / BLMQ / G）  设备号：collar-evt-___  底层固件版本：________  脚本版本：evt0.0.___
+板子：BLMQ（LM / BLMQ / G）  设备号：collar-evt-___  底层固件版本：________  脚本版本：evt0.0.___
 
 | # | 功能 | 状态 | 日期 | 日志文件（records/raw/…） | 备注 |
 |---|---|---|---|---|---|
-| F0 | 烧录环境（Windows/VM + Luatools）可用 | ☐ | | | |
+| F0 | 烧录环境（Windows/VM + Luatools）可用 | 进行中 | 2026-09-07 | | UTM/CrystalFetch/Luatools/固件 V2030 已就绪，待建 VM，见 docs/07 |
 | F1 | 开机、日志、版本、开机原因 | ☐ | | | |
 | F2 | SIM 注册、IP_READY、信号 | ☐ | | | 注册耗时 ___ s，RSRP ___ |
 | F3 | MQTT/TLS 单向校验；错误 CA 失败 | ☐ | | | |
@@ -23,4 +23,4 @@
 
 | 日期 | 功能 | 现象 | 处理 | 状态 |
 |---|---|---|---|---|
-| 2026-09-07 | F0 | Mac mini 无 Windows 虚拟机，Luatools 无法运行；模组未接 USB（Air8201G 无板载 Type-C，需 BTB 扩展板） | 选定 Windows 烧录路径；确认 BTB 扩展板 | 待处理 |
+| 2026-09-07 | F0 | Mac mini 无 Windows 虚拟机，Luatools 无法运行；模组未接 USB（Air8201G 无板载 Type-C，需 BTB 扩展板） | 已定 Mac+UTM 路线，板子 BLMQ 自带 Type-C；工具与固件已下载到 ~/petpal-vm-share | 进行中 |

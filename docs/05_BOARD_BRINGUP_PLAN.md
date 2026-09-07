@@ -24,8 +24,8 @@
 
 ## 烧录与日志（先解决）
 
-- **Luatools 只有 Windows 版**，不能在 macOS 直接烧录。选一种：Windows 笔记本；Mac 上 Parallels/UTM 装 Windows 并把模组 USB 直通；或者其它 Windows 机远程。
-- 底层固件：Air780EGH 系列 LuatOS 固件（合宙文档 `air780egh/luatos/firmware/version/`）。记录版本号到 `records/bringup_log.csv`。
+- **Luatools 只有 Windows 版**，不能在 macOS 直接烧录。2026-09-07 已定：Mac mini 上 UTM 跑 Windows 11 ARM，模组 USB 直通；板子为 BLMQ（BTB 调试板自带 Type-C）。完整步骤与已就绪的工具/固件见 `07_F0_MAC_UTM_FLASHING.md`。
+- 底层固件：Air780EGH 系列 LuatOS 固件，最新 V2030（2026-03-20），已下载到 `~/petpal-vm-share/core_firmware/`（另备 V2016）。记录版本号到 `records/bringup_log.csv`。
 - 烧录内容：`firmware/wearable-evt0/*.lua` + `config.lua`（自己填）+ CA 证书文件。
 - 烧完后 Mac 可以直接读 USB 日志：`python3 tools/serial_log.py /dev/cu.usbmodemXXXX`，日志落到 `records/raw/`。
 
