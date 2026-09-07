@@ -1,0 +1,1 @@
+date,battery_id,supplier,batch,weight_g,len_mm,width_mm,thick_mm,ocv_v,ir_mohm_25c,capacity_mah,vmin_0p8a_100pct_v,vmin_0p8a_50pct_v,vmin_0p8a_20pct_v,vmin_1a_step_20pct_v,protection_tripped,ocp_trip_a,odp_trip_v,ntc_present,ntc_25c_kohm,vmin_0c_v,docs_complete,verdict,notes

@@ -1,0 +1,1 @@
+date,device_id,route,mode,duration_min,fix_attempts,fix_success_rate,err_median_m,err_p95_m,lbs_fallbacks,lbs_err_median_m,reconnect_after_r3_s,replayed_count,zero_coord_count,ui_source_correct,tester,notes

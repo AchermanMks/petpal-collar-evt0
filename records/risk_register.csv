@@ -1,0 +1,12 @@
+risk,probability,impact,earliest_check,mitigation,status,owner
+三天线放不下或贴身失谐,高,高,9/3-9/4 → 本项目 TP-05,切 Air8201G；BLE 移 P1；两种天线/佩戴方向 A/B,open,
+低功耗在线仍无法达到 5 天,中,高,TP-03 场景 3/6,PSM+；降低日常定位频率；300→350 mAh（重量允许）,open,
+LTE 峰值导致复位,中,高,TP-01 / TP-06,高倍率低内阻电池；缩短走线；补电容；弱网降频,open,
+GNSS 被猫体/湿毛遮挡,高,高,TP-05 C4,天线移外侧顶部；LBS 回退；位置年龄透明展示,open,
+LuatOS/硬件版本差异,中,中,TP-01,固件记录硬件 metadata；锁版本；FAE 支持,open,
+供应商赶不上节前,中,高,采购台账,双供应商；Rev B 9/17 前释放；9/24 前收货,open,
+外壳重量超标,中,中,TP-08 A,砍音频/装饰件；薄壁/少螺钉；保留安全与密封,open,
+IP67 一个月内无法证明,高,中,启动即明确,EVT0 只做防泼水；Month 2 做 DVT,open,
+App/后端被硬件拖累,中,中,9/2 起,tools/mqtt_sim.py 持续模拟；硬件未到也可开发,open,
+凭据泄漏或越权控制,中,高,9/1,轮换旧秘密；设备独立凭据；Broker ACL；Release 不含直连,open,
+只有 2 台正式样机，破坏性测试无专用件,高,中,TP-08,破坏项在 Rev A 台架件/Rev B 备件上做；正式样机只做非破坏项,open,

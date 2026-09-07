@@ -1,0 +1,1 @@
+date,stage,device_id,fw_version,subject,weight_kg,mount,duration_min,battery_start_pct,battery_end_pct,flip_count,behavior_notes,contact_points,telemetry_count,cmd_ack_ok,stopped_early,stop_reason,observer,notes

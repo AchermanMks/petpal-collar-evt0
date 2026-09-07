@@ -1,0 +1,1 @@
+date,device_id,board_type,hw_rev,fw_hash,sim_registered_s,rsrp_dbm,mqtt_rtt_ms,gnss_cold_ttff_s,gnss_hot_ttff_s,sats,gsensor_wake_ok,ble_seen_ok,charge_status_ok,ntc_present,idle_ma,lp_online_ma,psm_ua,lte_peak_ma,tester,notes

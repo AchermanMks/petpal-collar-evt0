@@ -1,0 +1,2 @@
+jsonschema>=4.20
+paho-mqtt>=2.0

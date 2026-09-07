@@ -1,0 +1,1 @@
+date,device_id,fw_version,scenario,mode,duration_s,avg_ma,peak_ma,energy_mah,wakeups,battery_id,battery_pct_start,battery_pct_end,ambient_c,instrument,raw_file,extrapolated_days,tester,notes

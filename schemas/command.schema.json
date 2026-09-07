@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "petpal/v1/cmd",
+  "title": "PetPal backend -> collar command (topic petpal/v1/{device_id}/cmd, QoS 1)",
+  "type": "object",
+  "required": ["id", "issued_at", "expires_at", "type"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "minLength": 8, "maxLength": 64},
+    "device_id": {"type": "string"},
+    "issued_at": {"type": "integer"},
+    "expires_at": {"type": "integer"},
+    "type": {"enum": ["SET_MODE", "LOCATE_NOW", "VIBRATE", "LED", "BUZZ", "GET_STATE", "FOTA", "LOG_UPLOAD"]},
+    "args": {"type": "object"}
+  },
+  "$defs": {
+    "VIBRATE_args": {
+      "type": "object",
+      "required": ["duration_ms", "count"],
+      "properties": {
+        "duration_ms": {"type": "integer", "minimum": 50, "maximum": 500, "description": "firmware hard limit 500 ms"},
+        "count": {"type": "integer", "minimum": 1, "maximum": 3, "description": "firmware hard limit 3"},
+        "level": {"enum": ["min", "default"]}
+      }
+    },
+    "LED_args": {
+      "type": "object",
+      "required": ["pattern", "duration_s"],
+      "properties": {
+        "pattern": {"enum": ["blink", "breathe", "off"]},
+        "duration_s": {"type": "integer", "minimum": 1, "maximum": 300}
+      }
+    },
+    "SET_MODE_args": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["routine", "lost"]},
+        "ttl_s": {"type": "integer", "minimum": 60, "maximum": 7200, "description": "lost mode auto-expiry, 2 h max before renewal prompt"}
+      }
+    }
+  }
+}

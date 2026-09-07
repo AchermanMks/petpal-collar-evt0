@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# 凭据与设备标识：绝不入库
+firmware/wearable-evt0/config.lua
+secrets/
+*.pem
+*.key
+*.crt
+records/raw/*.imei
+
+# 测试原始数据（大文件按需单独归档）
+records/raw/*.csv
+records/raw/*.jsonl
+records/raw/*.bin
+*.log
+
+# 编辑器
+.idea/
+.vscode/
+*.swp

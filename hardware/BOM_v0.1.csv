@@ -1,0 +1,21 @@
+group,item,spec,qty_per_unit,candidate,source_order,weight_target_g,notes
+core,Air8201G-LM PCBA,4G Cat.1 + GNSS + BLE + G-sensor + 充电管理，约 16x33x4 mm,1,合宙,A,6.0(含三天线),回退 Air8201G 基础版
+core,4G LTE 天线,FPC 带 IPEX，可穿戴,1,候选 A 官方 / 候选 B,A/B,,远离 GNSS 天线另一端
+core,GNSS 天线,FPC/陶瓷，小地平面,1,候选 A 官方 / 候选 B,A/B,,外侧顶部
+core,BLE 天线,FPC 带 IPEX,1,候选 A 官方 / 候选 B,A/B,,仅 LM
+core,4G SIM,测试卡,1,,A,,后续 MFF2 eSIM（Month 2）
+power,锂电,302535 300 mAh 1S ≥3C 保护板 NTC,1,供应商 A / B,B,6.5,TP-02 抽检
+power,磁吸 pogo 充电组件,4-pin 短路/反接防护,1,,B,,靠近底部边缘
+carrier,功能载板 Rev A,2 层 0.8 mm FR-4 沉金,1,,C,3.0(含马达/pogo/线束),只承载低速控制与电源
+carrier,震动马达,1027 ERM 3 V,1,,B,,MOSFET 驱动 + 续流保护
+carrier,逻辑电平 MOSFET,3.0 V GPIO 充分导通,1,,B,,
+carrier,续流/瞬态保护,肖特基/TVS,1,,B,,
+carrier,LED,低电流，静态 ≤2 mA,1,,B,,不常亮
+carrier,蜂鸣器,可选,0-1,,B,,超重首先砍掉
+enclosure,外壳 Rev A/B,PA12 SLS 或高强度树脂，42x30x12 mm,1,,C/D,8.0(含密封圈紧固件),居中/侧向两种
+enclosure,TPU/硅胶垫,两种硬度/厚度,1,,B/C,,
+enclosure,密封圈,,1,,B,,防泼水工程验证，不宣称 IP67
+enclosure,三防漆,,1,,B,,PCB 涂覆
+enclosure,紧固件/卡扣,螺钉或卡扣，不在天线正上方用金属,按需,,C,,
+strap,织带 + breakaway 扣,≥2 种扣型对比,1,,B,6.5,释放力由拉脱测试确定
+total,整机目标,,,,,30.0,硬上限 35 g

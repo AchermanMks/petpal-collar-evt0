@@ -1,0 +1,1 @@
+date,device_id,battery_id,battery_pct,condition,vbat_min_v,peak_ma,resets,protection_trips,cell_temp_max_c,surface_temp_max_c,ambient_c,scope_capture,verdict,tester,notes

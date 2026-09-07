@@ -1,0 +1,1 @@
+date,device_id,condition,antenna_set,mount,rsrp_dbm,rssi_dbm,reg_time_s,pub_ok_rate,ttff_cold_s,ttff_hot_s,sats,cn0_avg,pos_err_m,ble_rssi_1m,ble_rssi_5m,photo,tester,notes

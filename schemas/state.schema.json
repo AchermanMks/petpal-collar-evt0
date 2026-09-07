@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "petpal/v1/state",
+  "title": "PetPal collar shadow/state (topic petpal/v1/{device_id}/state, QoS 1, retained; Last Will sets online=false)",
+  "type": "object",
+  "required": ["v", "device_id", "ts", "online"],
+  "properties": {
+    "v": {"const": 1},
+    "device_id": {"type": "string"},
+    "ts": {"type": "integer"},
+    "online": {"type": "boolean"},
+    "mode": {"enum": ["stationary", "routine", "lost", "low_power", "charging"]},
+    "fw": {"type": "string"},
+    "hw_rev": {"type": "string"},
+    "boot_count": {"type": "integer"},
+    "cache_depth": {"type": "integer", "minimum": 0, "maximum": 1000},
+    "reason": {"enum": ["boot", "periodic", "mode_change", "lwt"]}
+  }
+}

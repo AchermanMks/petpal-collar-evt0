@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "petpal/v1/telemetry",
+  "title": "PetPal collar telemetry (topic petpal/v1/{device_id}/telemetry, QoS 1)",
+  "type": "object",
+  "required": ["v", "device_id", "seq", "ts", "mode", "position", "battery", "radio", "fw"],
+  "additionalProperties": false,
+  "properties": {
+    "v": {"const": 1},
+    "device_id": {"type": "string", "pattern": "^collar-[a-z0-9]+-[0-9]{3}$"},
+    "seq": {"type": "integer", "minimum": 0},
+    "ts": {"type": "integer", "minimum": 1700000000, "maximum": 4102444800, "description": "unix seconds, device time after NTP/LTE sync"},
+    "mode": {"enum": ["stationary", "routine", "lost", "low_power", "charging"]},
+    "position": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "required": ["source", "lat", "lng", "accuracy_m", "fix_age_s"],
+          "additionalProperties": false,
+          "properties": {
+            "source": {"enum": ["gnss", "lbs"]},
+            "lat": {"type": "number", "minimum": -90, "maximum": 90},
+            "lng": {"type": "number", "minimum": -180, "maximum": 180},
+            "accuracy_m": {"type": "number", "minimum": 0, "maximum": 50000},
+            "fix_age_s": {"type": "integer", "minimum": 0},
+            "sats": {"type": "integer", "minimum": 0, "maximum": 64}
+          }
+        }
+      ]
+    },
+    "last_fix": {
+      "description": "Present when position is null: last valid fix and its timestamp",
+      "type": "object",
+      "required": ["ts", "lat", "lng", "source"],
+      "properties": {
+        "ts": {"type": "integer"},
+        "lat": {"type": "number", "minimum": -90, "maximum": 90},
+        "lng": {"type": "number", "minimum": -180, "maximum": 180},
+        "source": {"enum": ["gnss", "lbs"]}
+      }
+    },
+    "motion": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {"enum": ["still", "moving"]},
+        "steps": {"type": "integer", "minimum": 0}
+      }
+    },
+    "battery": {
+      "type": "object",
+      "required": ["pct", "mv", "charging"],
+      "additionalProperties": false,
+      "properties": {
+        "pct": {"type": "integer", "minimum": 0, "maximum": 100},
+        "mv": {"type": "integer", "minimum": 2500, "maximum": 4400},
+        "charging": {"type": "boolean"},
+        "temp_c": {"type": "number", "minimum": -40, "maximum": 100}
+      }
+    },
+    "radio": {
+      "type": "object",
+      "required": ["rsrp_dbm", "rssi_dbm"],
+      "properties": {
+        "rsrp_dbm": {"type": "integer", "minimum": -160, "maximum": -40},
+        "rssi_dbm": {"type": "integer", "minimum": -130, "maximum": -20},
+        "cell_id": {"type": "string"}
+      }
+    },
+    "fw": {"type": "string", "pattern": "^evt0\\.[0-9]+\\.[0-9]+(-rc[0-9]+)?$"},
+    "replayed": {"type": "boolean", "description": "true when sent from offline cache after reconnect"}
+  }
+}

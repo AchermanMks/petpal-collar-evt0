@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "petpal/v1/ack",
+  "title": "PetPal collar command acknowledgement (topic petpal/v1/{device_id}/ack, QoS 1)",
+  "type": "object",
+  "required": ["id", "device_id", "ts", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string", "description": "command id"},
+    "device_id": {"type": "string"},
+    "ts": {"type": "integer"},
+    "status": {"enum": ["accepted", "executed", "rejected", "error"]},
+    "reason": {
+      "enum": ["expired", "duplicate", "wrong_device", "bad_time", "low_battery", "charging", "over_temp", "cooldown", "limit_clamped", "unsupported", "internal"],
+      "description": "required when status is rejected/error; limit_clamped may accompany executed"
+    },
+    "applied_args": {"type": "object", "description": "args actually executed after firmware clamping"}
+  }
+}

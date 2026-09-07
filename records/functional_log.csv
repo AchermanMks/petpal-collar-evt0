@@ -1,0 +1,1 @@
+date,device_id,fw_version,telemetry_count,schema_pass_rate,seq_gaps_unexplained,dup_dedup_ok,cmd_count,final_ack_rate,dup_exec_count,ack_p50_s,ack_p95_s,safety_limit_enforced,mode_switch_count,offline_replay_ok,reconnect_cycles,reconnect_manual_restarts,tester,notes
