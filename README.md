@@ -5,6 +5,8 @@
 > 测试方案来源：飞书《宠物项圈MPV方案》→ `docs/00_TEST_PLAN_SOURCE.md`
 > 周期：2026-09-01 ～ 2026-09-30；本项目建立于 2026-09-07（Week 2 起点）
 
+> **2026-09-07 范围调整**：当前阶段只做 **板级功能调试**，目标是在手头 Air8201G 板子上把 10 项功能调通。执行方案见 `docs/05_BOARD_BRINGUP_PLAN.md`，硬件/API 事实见 `docs/06_AIR8201G_HARDWARE_NOTES.md`，进度记在 `records/bringup_checklist.md`。整机测试规程 TP-05/06/08/09/10 与 Gate 暂缓。
+
 本仓库只做一件事：**按测试方案，对迭代版本的项圈硬件产出可信的工程证据。**
 固件、后端、App 的正式代码仍在 `pet-collar` 仓库演进；这里放的是测试规程、记录模板、分析工具、接口契约（schema）和硬件参考资料。
 
@@ -17,7 +19,8 @@
 | `records/` | 台账与记录模板（CSV/Markdown）；`raw/` 放仪器原始数据（不入 git） |
 | `schemas/` | MQTT telemetry / event / state / cmd / ack 的 JSON Schema |
 | `tools/` | 遥测校验、功耗分析、命令 ACK 统计、GNSS 精度、MQTT 模拟器 |
-| `firmware/wearable-evt0/` | LuatOS 固件骨架（bring-up 用），凭据走 `config.lua`，不入库 |
+| `firmware/wearable-evt0/` | LuatOS 板级调试固件（模块化，按 `config.lua` 开关功能），凭据不入库 |
+| `firmware/reference/` | 合宙官方 Air8201 demo 与出厂工程副本（MIT），只读参考 |
 | `hardware/` | BOM v0.1、载板/外壳要求、Air8201G 3D 模型参考 |
 
 ## 测试规程索引
@@ -58,6 +61,9 @@ python3 tools/power_analyzer.py records/raw/collar-evt-001/TP-03_2026-09-10/rout
 
 # 统计命令 ACK 率、P95 延迟、重复执行
 python3 tools/ack_checker.py commands.jsonl acks.jsonl
+
+# 抓取板子 USB 日志到 records/raw（烧录后在 Mac 上直接用）
+python3 tools/serial_log.py /dev/cu.usbmodem1101 --device collar-evt-001
 
 # 模拟一台项圈接入 Broker（后端 soak 测试用，凭据用环境变量）
 MQTT_HOST=... MQTT_USER=... MQTT_PASS=... python3 tools/mqtt_sim.py --device collar-sim-001

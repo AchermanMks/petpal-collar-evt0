@@ -14,13 +14,13 @@ firmware/wearable-evt0/config.lua
 secrets/
 *.pem
 *.key
-*.crt
-records/raw/*.imei
+!firmware/reference/**/*.key
+records/raw/**/*.txt
 
 # 测试原始数据（大文件按需单独归档）
-records/raw/*.csv
-records/raw/*.jsonl
-records/raw/*.bin
+records/raw/**/*.csv
+records/raw/**/*.jsonl
+records/raw/**/*.bin
 *.log
 
 # 编辑器
