@@ -4,7 +4,7 @@
 
 | # | 功能 | 状态 | 日期 | 日志文件（records/raw/…） | 备注 |
 |---|---|---|---|---|---|
-| F0 | 烧录环境（Windows/VM + Luatools）可用 | 进行中 | 2026-09-07 | | UTM/CrystalFetch/Luatools/固件 V2030 已就绪，待建 VM，见 docs/07 |
+| F0 | 烧录环境（Windows/VM + Luatools）可用 | 进行中 | 2026-09-07 | | 改为另一台 Windows 电脑烧录，交接单 docs/08 + petpal-flash-kit.zip；Mac 虚拟机方案 docs/07 作备用 |
 | F1 | 开机、日志、版本、开机原因 | ☐ | | | |
 | F2 | SIM 注册、IP_READY、信号 | ☐ | | | 注册耗时 ___ s，RSRP ___ |
 | F3 | MQTT/TLS 单向校验；错误 CA 失败 | ☐ | | | |
