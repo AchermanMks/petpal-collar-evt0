@@ -13,10 +13,12 @@
 | `actuator_app.lua` | LED/马达 GPIO，上电默认关，≤500 ms×3、30 s 冷却 | F7 |
 | `ble_app.lua` | 板载蓝牙 iBeacon 广播 | F10 |
 | `config.example.lua` | 配置模板，复制为 `config.lua`（gitignore） | |
+| `libs/` | `exgnss.lua`、`lbsLoc2.lua` 官方扩展库副本，随包烧录 | F4 |
 
 ## 烧录包
 
 `main.lua` `net_app.lua` `mqtt_app.lua` `gnss_app.lua` `gsensor_app.lua` `power_app.lua` `actuator_app.lua` `ble_app.lua` `config.lua` `ca.crt`
+加 `libs/exgnss.lua` `libs/lbsLoc2.lua`（gnss_app 依赖，底层不内置，见 `libs/README.md`），
 外加底层固件（Air780EGH 系列 LuatOS，版本记录到 `records/bringup_log.csv`）。用 PWM 引脚时再加 LuatIO 生成的 pins json。
 
 ## 与官方参考的对应

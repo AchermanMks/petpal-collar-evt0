@@ -19,15 +19,16 @@
 | LED | GPIO16（出厂工程红灯）/ PWM4 | 状态灯 |
 | 马达 | 任一空闲 GPIO 或 PWM0/PWM1 经 MOSFET | 板上无马达，载板/飞线接 |
 | 关机键 | PWRKEY | `pm.shutdown()`，长按 7 s |
-| 低功耗 | `pm.power(pm.WORK_MODE, 1)` | 出厂工程用低功耗常驻模式 |
-| USB/烧录 | BTB/焊盘引出 USB，USB_BOOT | Luatools 仅 Windows |
+| 低功耗 | `pm.power(pm.WORK_MODE, 1)` | 出厂工程用低功耗常驻模式；**开了会关 USB，日志断** |
+| USB/烧录 | BTB 引出 USB；BLMQ 无 BOOT 键/USB_BOOT | Luatools 仅 Windows；靠 reset 后立即下载进入下载模式 |
+| 供电 | 板载电池 + 拨动开关 | VBUS 不供电，开关断开则整板无反应 |
 
 ## 烧录与日志（先解决）
 
-- **Luatools 只有 Windows 版**，不能在 macOS 直接烧录。2026-09-07 已定：Mac mini 上 UTM 跑 Windows 11 ARM，模组 USB 直通；板子为 BLMQ（BTB 调试板自带 Type-C）。完整步骤与已就绪的工具/固件见 `07_F0_MAC_UTM_FLASHING.md`。
+- **Luatools 只有 Windows 版**，不能在 macOS 直接烧录。2026-09-08 改为另一台 Windows 电脑烧录（交接单 `08_WINDOWS_FLASH_HANDOFF.md`），2026-09-09 已完成 V2030_1 + 脚本烧录，F1 通过，实录与板子硬件结论见 `09_WINDOWS_FLASH_REPORT.md`。Mac + UTM 方案（`07_F0_MAC_UTM_FLASHING.md`）保留备用。
 - 底层固件：Air780EGH 系列 LuatOS 固件，最新 V2030（2026-03-20），已下载到 `~/petpal-vm-share/core_firmware/`（另备 V2016）。记录版本号到 `records/bringup_log.csv`。
-- 烧录内容：`firmware/wearable-evt0/*.lua` + `config.lua`（自己填）+ CA 证书文件。
-- 烧完后 Mac 可以直接读 USB 日志：`python3 tools/serial_log.py /dev/cu.usbmodemXXXX`，日志落到 `records/raw/`。
+- 烧录内容：`firmware/wearable-evt0/*.lua` + `libs/exgnss.lua` + `libs/lbsLoc2.lua` + `config.lua`（自己填）+ CA 证书文件。Luatools 勾「清除KV分区」「清除FS分区」「添加默认扩展库」。
+- 烧完后 Mac 可以直接读 USB 日志：`python3 tools/serial_log.py /dev/cu.usbmodemXXXX`，日志落到 `records/raw/`。板子接 Mac 前把电池拨动开关置“通”；USB 枚举两个串口，抓 soc log 口那个。底层日志会打印完整 IMEI，外发前用 `tools/redact_ids.py` 打码。
 
 ## 功能清单与通过标准
 
@@ -63,3 +64,11 @@
 - TLS 校验前必须先对时（sntp 或基站时间）。
 - PWRKEY 内部上拉到 VBAT，必须 PULLUP，防抖要在 `gpio.setup` 之前。
 - PWM4 等复用引脚需要 LuatIO 生成的 pins json 一起烧录。
+
+## 已知坑（来自 2026-09-09 实际烧录，详见 docs/09）
+
+- `features.lowpower=true` 会关 LDO33USB，USB 串口消失。开 lowpower 前先换好日志通道（UART 或 MQTT 上报），否则看不到日志。
+- USB VBUS 不给模组供电；拔插 USB 不复位。复位按 `reset`；进下载模式的窗口只有刚复位后几秒。
+- 拨动开关是电池总开关，断开后整板假死（只亮充电灯），属正常设计。
+- `exgnss` 是脚本层扩展库，V2030 底层不内置；漏烧会在 Luatools 合并阶段就失败。
+- 底层日志打印完整 IMEI，脚本层的脱敏管不到它。

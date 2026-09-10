@@ -3,6 +3,13 @@
 > 给另一台 Windows 机器上的 Claude 的任务说明。自包含，不需要访问 Mac 或本仓库。
 > 配套文件包：`petpal-flash-kit.zip`（脚本、底层固件、本说明、记录表头）。
 
+> **勘误（2026-09-10，根据 docs/09 实际烧录结果）**
+> - §3/§4.5：BLMQ 调试板**没有 BOOT 键**，USB_BOOT 未引出。“等待设备”时不要找 BOOT；正确做法是插好 USB → 按 `reset` → COM 口出现后**立即**点全量下载（模组刚开机的头几秒才能被 Luatools 软重启进下载模式）。
+> - §3：板载电池由拨动开关控制，USB VBUS 不给模组供电。拨动开关必须置“通”，否则插 USB 也不枚举（只亮充电灯）；拔插 USB 不能复位模组。
+> - §2：文件包缺 `exgnss.lua` 与 `lbsLoc2.lua`（gnss_app 依赖，Luatools 合并会报缺文件），已补到 `firmware/wearable-evt0/libs/`，烧录时一并加入。
+> - §4.5：烧录时勾「清除KV分区」「清除FS分区」；出厂 V2044 程序已被覆盖且无备份。
+> - §5：本次 `features` 全部 false（含 mqtt），F1 已通过；F2 待日志。
+
 ## 1. 背景与目标
 
 PetPal 宠物项圈 EVT0，用合宙 **Air8201G-BLMQ** 板（核心是 Air780EGH，Cat.1 + GNSS + BLE，LuatOS 脚本运行时）。

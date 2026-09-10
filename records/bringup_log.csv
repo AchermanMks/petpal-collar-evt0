@@ -1,1 +1,2 @@
 date,device_id,board_type,hw_rev,fw_hash,sim_registered_s,rsrp_dbm,mqtt_rtt_ms,gnss_cold_ttff_s,gnss_hot_ttff_s,sats,gsensor_wake_ok,ble_seen_ok,charge_status_ok,ntc_present,idle_ma,lp_online_ma,psm_ua,lte_peak_ma,tester,notes
+2026-09-09,collar-evt-001,BLMQ,Air780EGH_A11/EC718HM,V2030_1+evt0.0.1,,,,,,,,,,,,,,,windows-side,"Luatools 3.4.9 Win11; COM12 soc log/COM13 user; F1 pass; SIM not inserted at flash time, F2 pending; features all false; VID/PID not recorded"

@@ -1,6 +1,6 @@
 device_id,board_type,hw_rev,module_sn_local_only,imei_local_only,iccid_local_only,fw_version,fw_hash,antenna_lte,antenna_gnss,antenna_ble,battery_id,carrier_board_rev,enclosure_rev,mount,weight_body_g,weight_total_g,assembled_date,assembled_by,status,notes
 collar-evt-001,Air8201G-LM,,,,,,,,,,,,,,,,,,planned,
 collar-evt-002,Air8201G-LM,,,,,,,,,,,,,,,,,,planned,
-dev-blmq-01,Air8201G-BLMQ,,,,,,,,,,,,,,,,,,planned,桌面开发/功耗
+dev-blmq-01,Air8201G-BLMQ,A11 (EC718HM),,,,V2030_1+evt0.0.1,,,,,,,,,,,,,bringup,桌面开发/功耗；2026-09-09 烧录，config.lua device_id 填的是 collar-evt-001（下次烧录改回 dev-blmq-01 或在此登记别名）；出厂 V2044 已覆盖无备份
 dev-blmq-02,Air8201G-BLMQ,,,,,,,,,,,,,,,,,,planned,
 dev-g-01,Air8201G,,,,,,,,,,,,,,,,,,planned,回退对照

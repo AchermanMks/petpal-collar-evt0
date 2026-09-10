@@ -8,6 +8,7 @@
 | gnss_accuracy.py | 遥测位置 vs 手机 GPX 参考：fix 成功率、中位/P95 误差 | TP-09 |
 | mqtt_sim.py | 模拟项圈接入 Broker，答复命令并执行固件同款安全上限；可注入重复 seq | 后端 soak、TP-04 A4 |
 | serial_log.py | Mac 上抓板子 USB/UART 日志到 records/raw，并抽出 JSON 行供上面两个工具用 | F1～F9 |
+| redact_ids.py | 回传/归档前给日志里的 IMEI/ICCID/IMSI 打码（底层固件会打印完整 IMEI） | F1～F2 日志回传 |
 
 安装：`pip install -r tools/requirements.txt`。所有脚本 `--json` 可输出机器可读结果；退出码 0 表示通过。
 自测：`python3 tools/selftest.py` 生成合成数据并跑一遍全部脚本。
