@@ -12,3 +12,4 @@ App/后端被硬件拖累,中,中,9/2 起,tools/mqtt_sim.py 持续模拟；硬�
 只有 2 台正式样机，破坏性测试无专用件,高,中,TP-08,破坏项在 Rev A 台架件/Rev B 备件上做；正式样机只做非破坏项,open,
 开 lowpower 后 USB 断开导致无日志/无法再烧录,高,中,F11 前,先换日志通道（UART/MQTT 上报）再开；保留 reset 后立即下载的恢复手法；docs/09,open,
 出厂 V2044 固件已覆盖且无备份,确定,低,—,需要恢复时向合宙/硬件方索取原包；出厂工程源码副本在 firmware/reference,open,
+BLMQ 调试板与 Windows 烧录链路拖慢板级调试,高,中,F2 起,usb_log/console 减少重烧；备份 Core_Air780EGH 开发板；Mac 原生 T-SIM7670G-S3 并行跑软件闭环；切换条件见 docs/11,open,

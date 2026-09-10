@@ -5,7 +5,7 @@
 > 测试方案来源：飞书《宠物项圈MPV方案》→ `docs/00_TEST_PLAN_SOURCE.md`
 > 周期：2026-09-01 ～ 2026-09-30；本项目建立于 2026-09-07（Week 2 起点）
 
-> **2026-09-07 范围调整**：当前阶段只做 **板级功能调试**，目标是在手头 Air8201G 板子上把 10 项功能调通。执行方案见 `docs/05_BOARD_BRINGUP_PLAN.md`，硬件/API 事实见 `docs/06_AIR8201G_HARDWARE_NOTES.md`，烧录环境（Mac + UTM Windows）见 `docs/07_F0_MAC_UTM_FLASHING.md`，进度记在 `records/bringup_checklist.md`。整机测试规程 TP-05/06/08/09/10 与 Gate 暂缓。
+> **2026-09-07 范围调整**：当前阶段只做 **板级功能调试**，目标是在手头 Air8201G 板子上把 10 项功能调通。执行方案见 `docs/05_BOARD_BRINGUP_PLAN.md`，硬件/API 事实见 `docs/06_AIR8201G_HARDWARE_NOTES.md`，烧录环境（Mac + UTM Windows）见 `docs/07_F0_MAC_UTM_FLASHING.md`，进度记在 `records/bringup_checklist.md`，备选开发板评估见 `docs/11_BACKUP_DEV_BOARDS.md`。整机测试规程 TP-05/06/08/09/10 与 Gate 暂缓。
 
 本仓库只做一件事：**按测试方案，对迭代版本的项圈硬件产出可信的工程证据。**
 固件、后端、App 的正式代码仍在 `pet-collar` 仓库演进；这里放的是测试规程、记录模板、分析工具、接口契约（schema）和硬件参考资料。
