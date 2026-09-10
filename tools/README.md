@@ -7,7 +7,8 @@
 | power_analyzer.py | 电流 CSV 积分、平均/峰值、唤醒计数、300 mAh 续航外推 | TP-03 |
 | gnss_accuracy.py | 遥测位置 vs 手机 GPX 参考：fix 成功率、中位/P95 误差 | TP-09 |
 | mqtt_sim.py | 模拟项圈接入 Broker，答复命令并执行固件同款安全上限；可注入重复 seq | 后端 soak、TP-04 A4 |
-| serial_log.py | Mac 上抓板子 USB/UART 日志到 records/raw，并抽出 JSON 行供上面两个工具用 | F1～F9 |
+| serial_log.py | 抓普通文本串口（UART 转 USB）日志到 records/raw，并抽出 JSON 行供上面两个工具用 | 外接 UART 时 |
+| usb_log.py | **Mac 直读 Air780EGH USB 日志口**（Luatools 帧格式解码、自动选口、IMEI 打码），落到 records/raw | F1～F9 |
 | redact_ids.py | 回传/归档前给日志里的 IMEI/ICCID/IMSI 打码（底层固件会打印完整 IMEI） | F1～F2 日志回传 |
 
 安装：`pip install -r tools/requirements.txt`。所有脚本 `--json` 可输出机器可读结果；退出码 0 表示通过。

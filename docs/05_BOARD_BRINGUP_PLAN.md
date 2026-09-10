@@ -28,7 +28,7 @@
 - **Luatools 只有 Windows 版**，不能在 macOS 直接烧录。2026-09-08 改为另一台 Windows 电脑烧录（交接单 `08_WINDOWS_FLASH_HANDOFF.md`），2026-09-09 已完成 V2030_1 + 脚本烧录，F1 通过，实录与板子硬件结论见 `09_WINDOWS_FLASH_REPORT.md`。Mac + UTM 方案（`07_F0_MAC_UTM_FLASHING.md`）保留备用。
 - 底层固件：Air780EGH 系列 LuatOS 固件，最新 V2030（2026-03-20），已下载到 `~/petpal-vm-share/core_firmware/`（另备 V2016）。记录版本号到 `records/bringup_log.csv`。
 - 烧录内容：`firmware/wearable-evt0/*.lua` + `libs/exgnss.lua` + `libs/lbsLoc2.lua` + `config.lua`（自己填）+ CA 证书文件。Luatools 勾「清除KV分区」「清除FS分区」「添加默认扩展库」。
-- 烧完后 Mac 可以直接读 USB 日志：`python3 tools/serial_log.py /dev/cu.usbmodemXXXX`，日志落到 `records/raw/`。板子接 Mac 前把电池拨动开关置“通”；USB 枚举两个串口，抓 soc log 口那个。底层日志会打印完整 IMEI，外发前用 `tools/redact_ids.py` 打码。
+- 烧完后 Mac 可以直接读 USB 日志：`python3 tools/usb_log.py --auto --device collar-evt-001 --tag F2`（2026-09-10 实测可用，不需要 Luatools）。板子接 Mac 前把电池拨动开关置“通”。Mac 上枚举为 AirM2M Compo USB（VID:PID 19D1:0001）三个 usbmodem 口：`…13` 是 AP 日志口（Luatools 帧格式，Lua 日志为明文，工具已解码并打码 IMEI）、`…15` 是底层二进制 trace（不可读）、`…17` 无输出。`serial_log.py` 只适用于普通文本串口。
 
 ## 功能清单与通过标准
 

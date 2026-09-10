@@ -72,7 +72,7 @@ end})
 结论：
 - **USB VBUS 不给模组供电**（官方：VBUS 仅作充电与唤醒中断，不能替代 VBAT）。拔插 USB 不能复位模组，要复位按 `reset`。充电红灯与模组状态无关。
 - **低功耗模式会物理关闭 USB**（`pm.WORK_MODE` 1/3 关 LDO33USB）。出厂固件常驻 MODE1，表现为设备管理器完全无枚举（不是驱动问题，Win10/11 免驱）。petpal 固件 `lowpower=false` 时 USB 常在。
-- 正常运行时 USB 枚举 **2 个串口**：soc log 口（本次 COM12，抓日志用）+ 用户虚拟串口（COM13）。
+- 正常运行时 USB 枚举串口：Windows 下 2 个（soc log COM12 + 用户虚拟口 COM13）；macOS 下 3 个 `cu.usbmodem0000000000013/15/17`，VID:PID 19D1:0001「AirM2M Compo USB」。`13` = AP 日志口（0x7e 分帧，格式串与参数分开，Lua 日志明文在 `>> ` 之后），`15` = 底层二进制 trace 约 18 KB/s，`17` 无输出。`tools/usb_log.py` 可直接读 13 口。
 - 红灯 = GPIO16（与 `config.lua` 的 `actuator.led_gpio=16` 一致），出厂固件开机闪 3 次；常亮那颗是充电灯。
 - `W/pins /luadb/pins_air780egh.json not exist!!`：脚本直接配管脚，无害；用 PWM 复用脚时再随包烧 pins json。
 - `exgnss` 是脚本库不是底层内置：烧录清单必须带 `exgnss.lua` + `lbsLoc2.lua`（已放 `firmware/wearable-evt0/libs/`），否则 Luatools 合并报“缺少 exgnss.lua”。
