@@ -8,10 +8,24 @@ local function mask(s)
     return s:sub(1, 3) .. string.rep("*", #s - 6) .. s:sub(-3)
 end
 
+-- BLMQ 板 SIM 座可能接在 SIM2：让底层自动扫两个卡槽（0/1 固定，2 自动）
+if mobile.simid then
+    local ok, e = pcall(mobile.simid, 2)
+    log.info("net", "simid auto", ok, e)
+end
+
 sys.taskInit(function()
     log.info("net", "waiting SIM/network ...")
+    local n = 0
     while not socket.adapter(socket.dft()) do
         sys.waitUntil("IP_READY", 1000)
+        n = n + 1
+        if n % 10 == 0 then   -- 每 10 s 打一次 SIM/网络诊断，便于 Mac 端看卡在哪
+            log.info("net", "still waiting", n, "s", "status", mobile.status(),
+                     "simid", mobile.simid and mobile.simid() or "?",
+                     "iccid", mobile.iccid() and mask(mobile.iccid()) or "nil",
+                     "csq", mobile.csq())
+        end
     end
     local dt = (mcu.ticks() - t0) / 1000
     log.info("net", "IP_READY after", dt, "s", "status", mobile.status())

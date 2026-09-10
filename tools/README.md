@@ -9,6 +9,8 @@
 | mqtt_sim.py | 模拟项圈接入 Broker，答复命令并执行固件同款安全上限；可注入重复 seq | 后端 soak、TP-04 A4 |
 | serial_log.py | 抓普通文本串口（UART 转 USB）日志到 records/raw，并抽出 JSON 行供上面两个工具用 | 外接 UART 时 |
 | usb_log.py | **Mac 直读 Air780EGH USB 日志口**（Luatools 帧格式解码、自动选口、IMEI 打码），落到 records/raw | F1～F9 |
+| luacheck.py | 用 lupa 对 firmware/wearable-evt0 全部 lua 做语法检查（`pip install lupa`） | 改固件后 |
+| usb_cmd.py | 通过 USB 用户虚拟串口给 console_app 发命令：`set <feature> 0/1`、`get`、`status`、`reboot`，切功能不重烧 | F3～F10 |
 | redact_ids.py | 回传/归档前给日志里的 IMEI/ICCID/IMSI 打码（底层固件会打印完整 IMEI） | F1～F2 日志回传 |
 
 安装：`pip install -r tools/requirements.txt`。所有脚本 `--json` 可输出机器可读结果；退出码 0 表示通过。

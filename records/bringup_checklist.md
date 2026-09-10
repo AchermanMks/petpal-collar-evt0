@@ -32,4 +32,6 @@
 | 2026-09-10 | F2 | 板子接 Mac，日志 `+CPIN: NOT READY`、`status 0` | SIM 未识别：确认卡是否插入/插反/卡座未到位；插好后按 reset 看 IP_READY | 待确认 |
 | 2026-09-10 | F2 | 断电重插 SIM 后冷启动，仍 `+CPIN: NOT READY`、`status 0`（raw/collar-evt-001/log_F2_20260909_210031.txt） | 排查：卡方向/卡座是否扣紧、是否需要 `mobile.simid(2)` 自动选卡槽、换一张卡 | 待确认 |
 | 2026-09-10 | F0 | Mac 上 serial_log.py 读不到日志（USB 日志口是 Luatools 帧格式） | 新增 tools/usb_log.py 解码，13 口可直读 Lua 日志，无需 Luatools | 已解决 |
+| 2026-09-10 | F0 | 每改一次 features 都要回 Windows 重烧 | 新增 console_app.lua + tools/usb_cmd.py：功能开关写 KV 覆盖，USB 命令切换后 reboot 生效；flash-kit v3 待烧 | 待烧录验证 |
+| 2026-09-10 | F2 | SIM 重插后第三次冷启动仍 NOT READY | net_app 加 `mobile.simid(2)` 自动扫卡槽并每 10 s 打 SIM 诊断；无 SIM 先走 F5/F6/F4/F10 | 待烧录验证 |
 | 2026-09-09 | F1 | `W/pins /luadb/pins_air780egh.json not exist!!` | 无害；用 PWM 复用脚时再随包烧 pins json | 记录 |

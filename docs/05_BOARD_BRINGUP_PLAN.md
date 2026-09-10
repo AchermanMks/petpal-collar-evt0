@@ -56,6 +56,19 @@
 
 每项通过在 `records/bringup_checklist.md` 打钩并写日志文件名。
 
+### 无 SIM 时的顺序（2026-09-10 起，SIM 未识别期间先走这条）
+
+不依赖网络的功能：F5 gsensor、F6 power、F4 gnss（无 AGPS，冷启动会慢）、F10 ble；F2/F3/F8/F9 等 SIM 解决后补。
+
+1. 用 flash-kit v3 在 Windows 烧一次（带 `console_app.lua`，功能开关可由 USB 命令覆盖）。
+2. 回 Mac，之后切功能不再重烧：
+   ```bash
+   python3 tools/usb_cmd.py set gsensor 1 && python3 tools/usb_cmd.py reboot
+   python3 tools/usb_log.py --auto --device collar-evt-001 --tag F5 --seconds 120
+   ```
+   顺序 F5 → F6 → F4 → F10，每项单独开、验完再开下一项；`actuator`/`lowpower` 仍按规则不开。
+3. SIM 通了以后 `set mqtt 1`（先烧 ca.crt 并填 config.lua 的 mqtt 段）走 F3。
+
 ## 已知坑（来自出厂工程更新日志）
 
 - DA267 上电后要等 ≥200 ms 再读 WHO_AM_I，否则 I2C NACK；失败重试 5 次。
@@ -72,3 +85,4 @@
 - 拨动开关是电池总开关，断开后整板假死（只亮充电灯），属正常设计。
 - `exgnss` 是脚本层扩展库，V2030 底层不内置；漏烧会在 Luatools 合并阶段就失败。
 - 底层日志打印完整 IMEI，脚本层的脱敏管不到它。
+- SIM 断电重插两次仍 `+CPIN: NOT READY`（2026-09-10）。固件已加 `mobile.simid(2)` 自动扫卡槽，等待下次烧录验证；同时换卡对比。

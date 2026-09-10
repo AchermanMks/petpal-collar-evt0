@@ -9,6 +9,7 @@
 > - §2：文件包缺 `exgnss.lua` 与 `lbsLoc2.lua`（gnss_app 依赖，Luatools 合并会报缺文件），已补到 `firmware/wearable-evt0/libs/`，烧录时一并加入。
 > - §4.5：烧录时勾「清除KV分区」「清除FS分区」；出厂 V2044 程序已被覆盖且无备份。
 > - §5：本次 `features` 全部 false（含 mqtt），F1 已通过；F2 待日志。
+> - **v3 包（2026-09-10）**：脚本多了 `console_app.lua`（9 个 app lua + `libs/exgnss.lua` + `libs/lbsLoc2.lua` + `config.lua`），烧录时全部加入。烧完后功能开关可在 Mac 上用 `tools/usb_cmd.py` 切换，不用再回 Windows。
 
 ## 1. 背景与目标
 

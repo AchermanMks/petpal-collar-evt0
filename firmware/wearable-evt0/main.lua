@@ -15,6 +15,17 @@ log.info("main", PROJECT, VERSION, cfg.device_id, cfg.fw)
 local r1, r2, r3 = pm.lastReson()
 log.info("main", "lastReson", r1, r2, r3, (r1 == 0 and r2 == 0 and r3 == 0) and "cold boot" or "reboot")
 if hmeta then log.info("main", "hmeta", hmeta.model and hmeta.model() or "?", hmeta.hwver and hmeta.hwver() or "?") end
+
+-- KV 功能开关覆盖：由 console_app（USB 命令台）写入，优先于 config.lua；便于 Mac 上切功能不重烧
+if fskv then fskv.init() end
+local console = require("console_app")
+local override = console.load_override()
+if override then
+    for k, v in pairs(override) do
+        if cfg.features[k] ~= nil then cfg.features[k] = v end
+    end
+    log.info("main", "features override from kv", json.encode(override))
+end
 log.info("main", "features", json.encode(cfg.features))
 
 -- errDump：脚本语法错误/自定义错误本地记录并上传（调试阶段建议开）
