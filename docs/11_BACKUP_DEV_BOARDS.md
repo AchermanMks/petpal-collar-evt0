@@ -60,6 +60,25 @@
 | 设备身份 / TLS / 安全 FOTA | ✅ LuatOS 同现役 | ✅ | ✅ ESP-IDF 有 mbedTLS + OTA |
 | 30 天内拿到可穿戴样机 | 不适用（台架） | 需 PCBA，风险 | 不适用（台架） |
 
+## 6. 购买链接（2026-09-10 核实）
+
+**合宙（官方淘宝店 https://luat.taobao.com ）**
+
+| 商品 | 链接 | 说明 |
+|---|---|---|
+| Air780EGG 开发板（Turnkey，定位版） | https://item.taobao.com/item.htm?id=1020704393672 | 合宙官方文档「购买链接」一节列出的链接。Air780EGG = Air780EGH + 内置 G-sensor，软件与 EGH 同系列；套件含摄像头/LCD/传感器/4G 天线/流量卡，比裸核心板贵，但 F5 也能顺便在它上面做 |
+| Air780EHM 开发板（Turnkey，无 GNSS） | https://item.taobao.com/item.htm?id=1021480484619 | 仅对照用，不推荐 |
+| Core_Air780EGH 核心板 | 在 https://luat.taobao.com 店内搜「Air780EGH」或「Air780EGG 核心板」 | 官方文档未直接给核心板链接；几十元级 |
+
+**LILYGO T-SIM7670G-S3**
+
+| 渠道 | 链接 | 备注 |
+|---|---|---|
+| LILYGO 官网 | https://lilygo.cc/en-us/products/t-sim-7670g-s3 | 标价 $39.45，两个版本：H707 基础版；H802 Standard（无缝供电切换、QWIIC、摄像头口），**选 Standard**（基础版在 USB/电池切换时会复位）。核实时官网显示 Sold out |
+| LILYGO 淘宝店 | https://shop140839766.taobao.com | 官网页脚给出的国内店 |
+| AliExpress 官方店 | https://www.aliexpress.com/item/1005007058444056.html | |
+| Amazon | https://www.amazon.com/dp/B0D6K75W57 （基础版）；https://www.amazon.com/dp/B0GJCGZX3Y （Standard） | 海外仓 |
+
 ## 5. 来源
 
 - Air780EGH 产品页与硬件手册：https://docs.openluat.com/air780egh/product/ ；开发板 BOOT 进下载模式说明：https://wiki.luatos.com/chips/air780e/index.html
