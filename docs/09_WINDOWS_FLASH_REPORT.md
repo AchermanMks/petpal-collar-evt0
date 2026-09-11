@@ -1,6 +1,6 @@
 > 归档说明（2026-09-10，Mac 端）：本文由 Windows 烧录侧 Claude 于 2026-09-09 生成，原件 `~/Downloads/WINDOWS_FLASH_REPORT.md`，正文原样收录，未改动。
 > Mac 端已据此更新：`docs/05`（烧录路线/已知坑）、`docs/06`（BLMQ 板实测结论）、`docs/08`（勘误）、`firmware/wearable-evt0/libs/`（补 exgnss/lbsLoc2）、`records/bringup_checklist.md`、`records/bringup_log.csv`、`tools/redact_ids.py`。
-> 尚未到手：F2 的 IP_READY 日志、3 分钟 trace 文件、交接表数值——见 §6 与 `records/bringup_checklist.md`。
+> 2026-09-10 补收 `~/Downloads/Luatools.zip`（Windows 机 `D:\Luatools` 整目录，含 log/、project/、第一版 flash-kit）。核对结果与归档清单见文末 **§7**；交接表里 IP_READY 秒数、首个 rsrp 无值（日志内始终无卡）。
 
 # PetPal EVT 板 Windows 烧录交付报告
 
@@ -82,3 +82,82 @@ I/user.net waiting SIM/network ...
 4. 板子接回 Mac 后:电池拨动开关置于"通",USB 直连;lowpower=false 下 USB 常在,`tools/serial_log.py` 可直接抓(两个串口:soc log + 用户虚拟口,抓日志用 soc log 口对应的设备)。
 5. F3 起逐项打开 features 时注意:开 `lowpower` 会关 USB(LDO33USB),须换好日志通道再开;`actuator` 按交接规则暂不开。
 6. 记录:出厂 V2044 固件已被覆盖且无备份;板子曾出现"供电开关断开导致假死"现象,硬件文档确认属正常设计而非故障。
+
+## 7. Mac 端核对（2026-09-10，依据 Luatools.zip）
+
+Windows 侧上次漏传的 `Luatools.zip` 已到 Mac（`~/Downloads/Luatools.zip`，282 MB，Windows `D:\Luatools` 整目录）。以下全部由 Mac 端从 zip 内 `log/`、`project/` 核对得出，可作为 §1 表格中「待确认 / 待补填」两项的最终结论。
+
+### 7.1 F2 结论：日志里始终无卡，IP_READY 未出现
+
+- `trace_2026-09-09_062459.txt` 只有 **60 s**（06:24:59 → 06:25:58），不是 3 分钟；Luatools 于 06:26:02 被关闭，trace 随之结束。
+- 60 s 时脚本周期行：`I/user.net rsrp 0 rssi 0 csq 0 status 0`，此前只有 `waiting SIM/network ...`。无 `IP_READY`、无 ICCID。
+- Luatools 自身每次刷新读到的小区信息均为 `+SOCCELL: 0,0,0,0,0`（mcc=0, mnc=0），与 §4.6 「系统状态显示 SIM卡未插入」一致。
+- 结论：**Windows 侧 F2 未执行（烧录全程未插 SIM），不是失败**。交接表 IP_READY 秒数、首个 rsrp 两栏留空。F2 继续按 Mac 侧路线（`docs/05` 无 SIM 顺序 + flash-kit v3 的 `simid` 诊断）推进。
+- 另一条 `E/errDump errdump server connect or tx fail, after 600 second retry`（32 s）：底层 errDump 上报无网失败，无害，可在脚本里 `errDump.config(false)` 关掉以减少噪音。
+
+### 7.2 烧录过程（来自 `tools_20260909.txt`，Luatools 应用日志）
+
+| 时间（Windows 本机时间） | 事件 |
+|---|---|
+| 06:13:46 | Luatools 3.4.9（2026-09-03 build）启动 |
+| 06:16:15 / 06:17:09 | 两次「发现ec718hm固件，请按住BOOT键复位设备…」→ 30 s 后「模块重启超时」（§4.4 的坑） |
+| 06:22:29 | 第三次成功：下载口为 **COM15**（下载模式下模组重新枚举，与运行时 COM12/13 不同），`ResetBoard skip for straight download`，agentboot 已在，921600 波特 |
+| 06:22:30 | `Burnbatch OK, imglist ['bootloader','system','cp_system','flexfile2']`；「下载成功 脚本区总空间:512KB,已使用58KB」；随后「设备复位重启」 |
+| 06:22:32 | 首次开机 `lastReson 0 0 3 reboot`（软复位），06:22:57 用户按 reset → `0 0 0 cold boot` |
+| 06:24:59 | 最后一次 trace（即 §5 的 F1 证据）开始，06:26:02 Luatools 关闭 |
+
+产品配置由 Luatools 自动选为 `EC718HM_PRD`，format 用 `format_ec718hm.json`。日志里的 `invalid config … MergeRfTable.bin, burnaddr 0x7e5000` 是工具对 ec718um 射频表的固定告警，本次烧录未受影响。
+
+### 7.3 项目文件 `project/petpal-evt.ini`（可直接复现 §3 的配置）
+
+```ini
+[info]
+core_path = D:\Luatools\petpal-flash-kit\petpal-flash-kit\LuatOS-SoC_V2030_Air780EGH_1.soc
+type = .soc
+add_core = False
+default_lib = True
+print_mode = 2
+
+[D:\Luatools\petpal-flash-kit\petpal-flash-kit\wearable-evt0]
+actuator_app.lua =
+ble_app.lua =
+gnss_app.lua =
+gsensor_app.lua =
+main.lua =
+mqtt_app.lua =
+net_app.lua =
+power_app.lua =
+config.lua =
+exgnss.lua =
+
+[mode]
+type = 1
+user_br = 115200
+br = 2000000
+```
+
+注意：脚本列表里只有 `exgnss.lua`，没有 `lbsLoc2.lua`——但合并通过且运行正常，说明 Luatools「添加默认扩展库」已自带 `lbsLoc2`。flash-kit v3 把两个都放进 `libs/` 不冲突。
+
+### 7.4 出厂 V2044 固件的运行日志（意外收获）
+
+zip 里 `trace_2026-09-07_230011.txt`、`trace_2026-09-08_013500.txt`、`trace_2026-09-08_013854.txt`（341 KB）是出厂固件被覆盖前的运行日志，是目前**唯一**的出厂程序行为记录（源码副本在 `firmware/reference/`）。要点：
+
+- 版本：`LuatOS@Air780EGH base 26.04 bsp V2044`，ROM Build 2026-06-18，脚本 `Air8201G-Turnkey 001.999.006`，SDK base line `V017_p001.025`（我们烧的 V2030 是 `V017_pp23.001`）。
+- 2026-09-08 01:38～03:55 之间共 46 次开机，基本都是 `poweron reason 0 0 0`（按 reset/开机键），对应 §4 反复折腾的时段。
+- 出厂固件同样从未 `IP_READY`：`wait IP_READY` 连续 677 条、`Waiting for network...` 332 条，`I/user.拔卡` 出现 3 次，从未出现插卡/ICCID。当时大概率也没插 SIM，**不能**单独作为卡座故障的证据，但说明「模组读不到卡」不是 petpal 脚本引入的。
+- 硬件事实（与 `docs/06` 交叉验证，已同步过去）：`VBUS 引脚: WAKEUP1 (Air8201 BTB)`；DA267 `chipid=0x13, INT=GPIO20`，供电 GPIO24、I2C 上拉 GPIO28，I2C1 地址 0x26；电池 `ADC0 满电=4150mV 关机=3400mV`；红灯 GPIO16。
+- 电池电压从 01:35 的 3779 mV 一路降到 03:54 的 **3014 mV（0%，已低于出厂关机阈值 3400）**，与 §4.1「假死」时段重合——除拨动开关外，**电池耗尽**也是当时无反应的原因之一。之后所有桌面调试务必让板子先充电。
+
+### 7.5 归档
+
+打码（`tools/redact_ids.py`，IMEI 已确认全部为 `864*********889` 形式）后放入 `records/raw/collar-evt-001/`（`*.txt` 不入 git，仅本机保留）：
+
+| 文件 | 来源 |
+|---|---|
+| `log_F1_win_20260909_062459.txt` | §5 F1 证据原文（60 s） |
+| `log_F1_win_20260909_062232_postflash.txt`、`log_F1_win_20260909_062315.txt` | 烧录后前两次开机 |
+| `log_factory_V2044_win_20260907_230011.txt`、`…_20260908_013500.txt`、`…_20260908_013854.txt` | 出厂固件运行日志 |
+| `luatools_app_win_20260907/08/09.txt` | Luatools 应用日志（GB18030 → UTF-8） |
+| `luatools_project_petpal-evt_20260909.ini.txt` | 项目文件原件 |
+
+原始 zip 仍在 `~/Downloads/Luatools.zip`（含完整 IMEI，不要外传）；`~/petpal-vm-share/luatools/` 已有 `Luatools_v3.exe`，UTM 路线需要时可直接从 zip 补齐 `_temp/`、`resource/`。

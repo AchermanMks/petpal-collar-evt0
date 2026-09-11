@@ -19,10 +19,10 @@
 | DA267 I2C | I2C1，地址 0x26，WHO_AM_I 寄存器 0x01 = 0x13 | demo/gsensor, project/factory |
 | DA267 供电 | GPIO24 | 同上 |
 | I2C 上拉使能 | GPIO28 | project/factory/gsensor.lua |
-| DA267 INT | GPIO20（出厂工程）/ GPIO39（demo README）— **实测确认** | 两处不一致 |
-| 电池 ADC | ADC0，`adc.setRange(adc.ADC_RANGE_MIN)` 后 open/get/close；分压 1M/300k，+140 mV | project/factory/mypower.lua |
+| DA267 INT | **GPIO20**（出厂工程；2026-09-08 出厂固件在本板日志 `DA267 初始化成功 chipid=0x13, INT=GPIO20` 且能触发运动中断）；demo README 写 GPIO39 不适用于 BLMQ | 出厂固件日志 docs/09 §7.4 |
+| 电池 ADC | ADC0，`adc.setRange(adc.ADC_RANGE_MIN)` 后 open/get/close；分压 1M/300k，+140 mV；出厂固件阈值 满电 4150 mV / 关机 3400 mV | project/factory/mypower.lua + docs/09 §7.4 |
 | VBAT 直读 | `adc.CH_VBAT`（主供电脚电压） | Air780E 系列 adc demo |
-| VBUS 检测 | `gpio.WAKEUP1`，PULLDOWN，BOTH 边沿 | project/factory/mypower.lua |
+| VBUS 检测 | `gpio.WAKEUP1`，PULLDOWN，BOTH 边沿（出厂固件日志确认 `VBUS 引脚: WAKEUP1 (Air8201 BTB)`） | project/factory/mypower.lua + docs/09 §7.4 |
 | PWRKEY | `gpio.PWR_KEY`，PULLUP，FALLING | 同上 |
 | 红灯 | GPIO16 | 同上 |
 | PWM | PWM4 = GPIO27/PIN16，PWM0 = PIN22，PWM1 = PIN20（需 LuatIO pins json 复用） | demo/pwm/pins_Air780EGH.json |
@@ -74,6 +74,8 @@ end})
 - **低功耗模式会物理关闭 USB**（`pm.WORK_MODE` 1/3 关 LDO33USB）。出厂固件常驻 MODE1，表现为设备管理器完全无枚举（不是驱动问题，Win10/11 免驱）。petpal 固件 `lowpower=false` 时 USB 常在。
 - 正常运行时 USB 枚举串口：Windows 下 2 个（soc log COM12 + 用户虚拟口 COM13）；macOS 下 3 个 `cu.usbmodem0000000000013/15/17`，VID:PID 19D1:0001「AirM2M Compo USB」。`13` = AP 日志口（0x7e 分帧，格式串与参数分开，Lua 日志明文在 `>> ` 之后），`15` = 底层二进制 trace 约 18 KB/s，`17` 无输出。`tools/usb_log.py` 可直接读 13 口。
 - 红灯 = GPIO16（与 `config.lua` 的 `actuator.led_gpio=16` 一致），出厂固件开机闪 3 次；常亮那颗是充电灯。
+- **下载模式的串口是另一个号**：Luatools 让模组进下载模式后重新枚举，2026-09-09 下载口是 COM15（运行时 COM12/13）。Windows 上看到 COM 号变化是正常的。
+- **电池耗尽也会“假死”**：2026-09-08 出厂固件日志显示电池从 3779 mV 掉到 3014 mV（低于出厂关机阈值 3400 mV），与当天「板子完全无反应」时段重合。桌面调试前先充电，充电灯常亮不代表模组有电。
 - `W/pins /luadb/pins_air780egh.json not exist!!`：脚本直接配管脚，无害；用 PWM 复用脚时再随包烧 pins json。
 - `exgnss` 是脚本库不是底层内置：烧录清单必须带 `exgnss.lua` + `lbsLoc2.lua`（已放 `firmware/wearable-evt0/libs/`），否则 Luatools 合并报“缺少 exgnss.lua”。
 

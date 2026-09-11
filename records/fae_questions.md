@@ -14,7 +14,7 @@
 | 6 | 3D 模型、原理图、推荐天线与天线净空要求？（已有 3D_Air8201G_v1.5.step） | | | |
 | 7 | Air8201G-LM 当前供货周期？Air8000 是否有可穿戴/宠物定位成品 PCBA？（docs/11） | | | |
 | 8 | Luatools 是否有 macOS/Linux 版或命令行版计划？ectool2py 何时支持 EC718（Air780EGH）与脚本烧录？ | | | |
-| 9 | BLMQ 调试板 SIM 座接的是 SIM1 还是 SIM2？`+CPIN: NOT READY` 的排查建议？ | | | |
+| 9 | BLMQ 调试板 SIM 座接的是 SIM1 还是 SIM2？`+CPIN: NOT READY` 的排查建议？（补充：出厂 V2044 固件 2026-09-08 在本板的日志同样从未 IP_READY 并打印「拔卡」，当时未必插卡；petpal 固件下断电重插两次仍 NOT READY） | | | |
 
 ## 天线
 
