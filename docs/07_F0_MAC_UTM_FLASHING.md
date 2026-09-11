@@ -23,7 +23,7 @@
 
 ## 磁盘（必须先处理）
 
-数据卷 228 GB，2026-09-11 剩余约 **18 GB**（比 9/7 又少了 5 GB）。Windows 11 ARM ISO 约 5 GB，装完系统约 15 GB，再加 Luatools 与日志，至少要留 25～30 GB。可清理项（都在 mantashark 主目录）：
+数据卷 228 GB。2026-09-11 已按下表清理（ubuntu 镜像、废纸篓、DerivedData、Lark/Claude 缓存、已装应用的安装包），剩余 **34 GB**，满足要求；Chrome 缓存因 Chrome 在运行未删干净，CoreSimulator 无失效项未动。以下清单留作下次参考。Windows 11 ARM ISO 约 5 GB，装完系统约 15 GB，再加 Luatools 与日志，至少要留 25～30 GB。可清理项（都在 mantashark 主目录）：
 
 | 项 | 大小 | 说明 |
 |---|---|---|
