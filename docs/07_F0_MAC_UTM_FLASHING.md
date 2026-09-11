@@ -9,7 +9,9 @@
 | 项 | 位置 | 说明 |
 |---|---|---|
 | UTM 4.7.5 | `/Applications/UTM.app`，`/opt/homebrew/bin/utmctl` | `brew install --cask utm` |
-| CrystalFetch 2.2.0 | `/Applications/CrystalFetch.app` | 生成 Windows 11 ARM64 安装 ISO |
+| CrystalFetch 2.2.0 | `/Applications/CrystalFetch.app` | 生成 Windows 11 ARM64 安装 ISO（GUI 备用；实际用了终端路线，见步骤 1） |
+| UUP 合成工具 | Homebrew aria2/cabextract/wimlib/cdrtools + `~/petpal-vm-share/iso_build/bin/chntpw` | 2026-09-11 装好 |
+| **Windows 11 ARM64 ISO** | `~/petpal-vm-share/Windows11_24H2_ARM64_zh-CN_26100.1.ISO`（4.47 GB） | 24H2 专业版 zh-CN，基础 build 26100.1（macOS 合成器不整合累积更新，装完系统再 Windows Update）。sha256 `3cf06ce2…4a72`。2026-09-11 终端合成，耗时约 6 分钟 |
 | Luatools_v3.exe（73 MB） | `~/petpal-vm-share/luatools/` | 来自 `https://luatos.com/luatools/download/last`；**优先用下一行的 zip，这个只在 zip 不能用时兜底** |
 | **Luatools.zip（282 MB）** | `~/petpal-vm-share/luatools/Luatools.zip` | 9/9 烧录成功那台 Win11 的 `D:\Luatools` 整目录：3.4.9 已自解压、`_temp/ec_download` 已带 EC718HM 资源、`project/petpal-evt.ini` 已配好、`log/` 有历史日志。sha256 `764c24a0…356e2`。**含完整 IMEI，不外传** |
 | **petpal-flash-kit-v3.zip（11 MB）** | `~/petpal-vm-share/petpal-flash-kit-v3.zip` | 当前要烧的包（9 个 app lua + libs/exgnss、lbsLoc2 + 同一份 .soc + redact_ids.py），交接单 `docs/10`。sha256 `29f7978a…d397` |
@@ -38,14 +40,27 @@
 
 ### 1. 生成 Windows 11 ARM ISO
 
-1. 打开 CrystalFetch → Windows 11 → 架构 **ARM64** → 语言任选 → Download。
-2. 默认落到 `~/Downloads/`，约 5 GB，耗时取决于网络。
+**已改为远程终端完成（2026-09-11）**，不用开 CrystalFetch。CrystalFetch 内部就是 UUP dump + 本地合成，但它自带的 aria2c/wimlib 等二进制是沙盒签名，命令行下直接被杀，所以工具走 Homebrew，chntpw（Homebrew 没有）从 pogostick.net 源码编译：
+
+```bash
+brew install aria2 cabextract wimlib cdrtools          # cdrtools 提供 mkisofs
+# chntpw：~/petpal-vm-share/iso_build/chntpw/ 里源码 140201，make CC=clang 加 openssl@3 头文件即可，产物在 iso_build/bin/
+# 选版本：https://api.uupdump.net/listid.php?search=windows%2011%20arm64&sortByDate=1 → 取 arch=arm64 的 "Windows 11, version 24H2"
+# 取下载包（zh-cn 专业版）：
+curl -L -o uup_pkg.zip -d "autodl=2&updates=1&cleanup=1" \
+  "https://uupdump.net/get.php?id=<uuid>&pack=zh-cn&edition=professional"
+unzip uup_pkg.zip -d pkg && cd pkg && PATH=~/petpal-vm-share/iso_build/bin:$PATH bash uup_download_macos.sh
+```
+
+本次用的是 24H2 build 26100.9539（uuid `c004689e-f068-47f7-85b8-ca8d08497eaf`），工作目录 `~/petpal-vm-share/iso_build/`，日志 `build.log`。**已完成**：产物移到 `~/petpal-vm-share/Windows11_24H2_ARM64_zh-CN_26100.1.ISO`，UUP 原始文件已删。注意 macOS 版 convert.sh 只做基础镜像，ISO 里的 build 是 26100.1，累积更新不整合，装完在虚拟机里跑 Windows Update 即可。
+
+手动路线仍然可用：打开 CrystalFetch → Windows 11 → 架构 **ARM64** → 语言任选 → Download，落到 `~/Downloads/`。
 
 ### 2. 创建虚拟机（UTM）
 
 1. 打开 UTM → `+` → **Virtualize** → **Windows**。
 2. 勾选 **Install Windows 10 or higher**；**不要**勾 "Use Apple Virtualization"（Apple 虚拟化框架不支持 USB 直通，必须用 QEMU 后端）。
-3. Boot ISO 选 CrystalFetch 生成的 ISO。
+3. Boot ISO 选 `~/petpal-vm-share/Windows11_24H2_ARM64_zh-CN_26100.1.ISO`。
 4. 内存 6144 MB，CPU 4 核，磁盘 40 GB（按需增长，实际只占用已写入部分）。
 5. 共享目录选 `~/petpal-vm-share`。
 6. 创建后先别启动：进 VM 设置 → **Sharing**，确认 **USB Sharing** 已开启（QEMU 后端默认开）。
@@ -99,6 +114,6 @@ cd ~/petpal-collar-evt0 && ./.venv/bin/python tools/usb_log.py --auto --device c
 | Windows 11 ARM 对模组 USB CDC 枚举失败 | 先看设备管理器 VID/PID；退路是 Parallels（USB 直通更成熟）或另找 x86 Windows 电脑 |
 | Luatools x86 转译下载超时 | 降低下载波特率；或改用 V2016 对比 |
 | 下载模式重枚举后 VM 丢设备（PID 变化） | 点下载后盯 UTM USB 菜单手动勾新设备；仍不行则此路线只能用于“不换底层固件”的场景，底层烧录回 Windows PC（`docs/11`） |
-| 磁盘 18 GB 不够装 Windows | 先按上表清盘到 ≥30 GB 再开始 |
+| 磁盘不够装 Windows | 2026-09-11 清盘后 34 GB，合成 ISO 后剩 29 GB；虚拟机磁盘按需增长，装完约占 15 GB |
 | 磁盘不足导致 Windows 安装中途失败 | 装前确认剩余 ≥ 30 GB |
 | CrystalFetch 无法访问微软服务器 | 换用 Mac 上的代理；或在其它机器下 ISO 拷过来 |
