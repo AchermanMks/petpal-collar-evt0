@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- 必须与主 App 勾选同名 group，小组件才能读到主 App 写的 PetSnapshot -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.petpal.air8201g</string>
+	</array>
+</dict>
+</plist>

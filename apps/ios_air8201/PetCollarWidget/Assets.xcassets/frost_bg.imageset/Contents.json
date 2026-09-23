@@ -1,0 +1,6 @@
+{
+  "images" : [
+    { "filename" : "frost_bg.png", "idiom" : "universal" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}

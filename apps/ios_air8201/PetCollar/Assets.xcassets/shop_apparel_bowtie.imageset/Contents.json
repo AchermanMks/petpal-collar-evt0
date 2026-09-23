@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "shop_apparel_bowtie.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

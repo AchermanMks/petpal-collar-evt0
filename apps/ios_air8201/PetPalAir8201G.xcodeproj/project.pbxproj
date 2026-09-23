@@ -1,0 +1,706 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AB8201000000000000000001 /* AirCollar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8201000000000000000002 /* AirCollar.swift */; };
+		B10000000000000000000002 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000002 /* Assets.xcassets */; };
+		B10000000000000000000003 /* PetCollarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000003 /* PetCollarApp.swift */; };
+		B10000000000000000000004 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000004 /* AppState.swift */; };
+		B10000000000000000000005 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000005 /* APIClient.swift */; };
+		B10000000000000000000006 /* MJPEGStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* MJPEGStream.swift */; };
+		B10000000000000000000007 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000007 /* Models.swift */; };
+		B10000000000000000000008 /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000008 /* ConnectionView.swift */; };
+		B10000000000000000000009 /* DetectionsPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000009 /* DetectionsPanelView.swift */; };
+		B1000000000000000000000A /* LivePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000A /* LivePreviewView.swift */; };
+		B1000000000000000000000B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000B /* RootView.swift */; };
+		B1000000000000000000000C /* TrajectoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000C /* TrajectoryView.swift */; };
+		B1000000000000000000000D /* VLMPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000D /* VLMPanelView.swift */; };
+		B1000000000000000000000E /* Visualization3DView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000000E /* Visualization3DView.swift */; };
+		B10000000000000000000010 /* AlertEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000010 /* AlertEngine.swift */; };
+		B10000000000000000000011 /* StatsPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000011 /* StatsPanelView.swift */; };
+		B10000000000000000000012 /* AlertsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000012 /* AlertsView.swift */; };
+		B10000000000000000000013 /* ESPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000013 /* ESPClient.swift */; };
+		B10000000000000000000014 /* LightControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000014 /* LightControlView.swift */; };
+		B10000000000000000000015 /* CameraStreamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000015 /* CameraStreamView.swift */; };
+		B10000000000000000000016 /* SpeakerControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000016 /* SpeakerControlView.swift */; };
+		F40E9C568AF54978940FF5CB /* GPSView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDA2B0A2BF7C46C296DFEC1A /* GPSView.swift */; };
+		3C1F078B56934E28984601B2 /* CollarDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D0C78E88F984BFF9C191390 /* CollarDataView.swift */; };
+		D1000000000000000000000A /* HealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1000000000000000000000A /* HealthView.swift */; };
+		D2000000000000000000000A /* PetProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000000000000000000000A /* PetProfileView.swift */; };
+		D3000000000000000000000A /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3000000000000000000000A /* ShopView.swift */; };
+		D4000000000000000000000A /* SocialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4000000000000000000000A /* SocialView.swift */; };
+		D5000000000000000000000A /* TrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5000000000000000000000A /* TrainingView.swift */; };
+		D9000000000000000000000A /* PassView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9000000000000000000000A /* PassView.swift */; };
+		D8000000000000000000000A /* ProUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8000000000000000000000A /* ProUnlockView.swift */; };
+		D7000000000000000000000A /* TamagotchiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7000000000000000000000A /* TamagotchiView.swift */; };
+		D6000000000000000000000A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6000000000000000000000A /* OnboardingView.swift */; };
+		9FA673B613EC47F29B223B6F /* MotorControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F599451B9994D2FA7E5F6A8 /* MotorControlView.swift */; };
+		B10000000000000000000017 /* PetPalTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000017 /* PetPalTheme.swift */; };
+		B10000000000000000000018 /* PetPalLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000018 /* PetPalLogo.swift */; };
+		B10000000000000000000019 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000019 /* LoginView.swift */; };
+		B1000000000000000000001A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001A /* HomeView.swift */; };
+		B1000000000000000000001B /* ArcControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000001B /* ArcControlView.swift */; };
+		E1000000000000000000F001 /* PetKit in Frameworks */ = {isa = PBXBuildFile; productRef = E1000000000000000000F002 /* PetKit */; };
+		E1000000000000000000F120 /* PetCollarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1000000000000000000F111 /* PetCollarWidget.swift */; };
+		E1000000000000000000F121 /* PetKit in Frameworks */ = {isa = PBXBuildFile; productRef = E1000000000000000000F160 /* PetKit */; };
+		E1000000000000000000F122 /* PetCollarWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = E1000000000000000000F110 /* PetCollarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E1000000000000000000F124 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1000000000000000000F123 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AB8201000000000000000002 /* AirCollar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirCollar.swift; sourceTree = "<group>"; };
+		A10000000000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A10000000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000003 /* PetCollarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetCollarApp.swift; sourceTree = "<group>"; };
+		A10000000000000000000004 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		A10000000000000000000005 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		A10000000000000000000006 /* MJPEGStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MJPEGStream.swift; sourceTree = "<group>"; };
+		A10000000000000000000007 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		A10000000000000000000008 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
+		A10000000000000000000009 /* DetectionsPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionsPanelView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000A /* LivePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivePreviewView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000C /* TrajectoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrajectoryView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000D /* VLMPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VLMPanelView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000E /* Visualization3DView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Visualization3DView.swift; sourceTree = "<group>"; };
+		A1000000000000000000000F /* PetCollar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetCollar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000010 /* AlertEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertEngine.swift; sourceTree = "<group>"; };
+		A10000000000000000000011 /* StatsPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsPanelView.swift; sourceTree = "<group>"; };
+		A10000000000000000000012 /* AlertsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsView.swift; sourceTree = "<group>"; };
+		A10000000000000000000013 /* ESPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ESPClient.swift; sourceTree = "<group>"; };
+		A10000000000000000000014 /* LightControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightControlView.swift; sourceTree = "<group>"; };
+		A10000000000000000000015 /* CameraStreamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraStreamView.swift; sourceTree = "<group>"; };
+		A10000000000000000000016 /* SpeakerControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerControlView.swift; sourceTree = "<group>"; };
+		FDA2B0A2BF7C46C296DFEC1A /* GPSView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSView.swift; sourceTree = "<group>"; };
+		9D0C78E88F984BFF9C191390 /* CollarDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollarDataView.swift; sourceTree = "<group>"; };
+		C1000000000000000000000A /* HealthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthView.swift; sourceTree = "<group>"; };
+		C2000000000000000000000A /* PetProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetProfileView.swift; sourceTree = "<group>"; };
+		C3000000000000000000000A /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
+		C4000000000000000000000A /* SocialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialView.swift; sourceTree = "<group>"; };
+		C5000000000000000000000A /* TrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingView.swift; sourceTree = "<group>"; };
+		C9000000000000000000000A /* PassView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PassView.swift; sourceTree = "<group>"; };
+		C8000000000000000000000A /* ProUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProUnlockView.swift; sourceTree = "<group>"; };
+		C7000000000000000000000A /* TamagotchiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TamagotchiView.swift; sourceTree = "<group>"; };
+		C6000000000000000000000A /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		7F599451B9994D2FA7E5F6A8 /* MotorControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorControlView.swift; sourceTree = "<group>"; };
+		A10000000000000000000017 /* PetPalTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetPalTheme.swift; sourceTree = "<group>"; };
+		A10000000000000000000018 /* PetPalLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetPalLogo.swift; sourceTree = "<group>"; };
+		A10000000000000000000019 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A1000000000000000000001B /* ArcControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArcControlView.swift; sourceTree = "<group>"; };
+		E1000000000000000000F110 /* PetCollarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PetCollarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1000000000000000000F111 /* PetCollarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetCollarWidget.swift; sourceTree = "<group>"; };
+		E1000000000000000000F112 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E1000000000000000000F113 /* PetCollarWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PetCollarWidget.entitlements; sourceTree = "<group>"; };
+		E1000000000000000000F123 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E1000000000000000000F114 /* PetCollar.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PetCollar.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		E1000000000000000000F181 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E1000000000000000000F140;
+			remoteInfo = PetCollarWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E1000000000000000000F170 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E1000000000000000000F122 /* PetCollarWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E1000000000000000000F180 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E1000000000000000000F140 /* PetCollarWidget */;
+			targetProxy = E1000000000000000000F181 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E10000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000F001 /* PetKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E1000000000000000000F142 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000F121 /* PetKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				C10000000000000000000002 /* PetCollar */,
+				E1000000000000000000F130 /* PetCollarWidget */,
+				C10000000000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C10000000000000000000002 /* PetCollar */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000003 /* PetCollarApp.swift */,
+				A10000000000000000000004 /* AppState.swift */,
+				C10000000000000000000003 /* Core */,
+				C10000000000000000000004 /* Features */,
+				C10000000000000000000006 /* Theme */,
+				A10000000000000000000002 /* Assets.xcassets */,
+				A10000000000000000000001 /* Info.plist */,
+				E1000000000000000000F114 /* PetCollar.entitlements */,
+			);
+			path = PetCollar;
+			sourceTree = "<group>";
+		};
+		E1000000000000000000F130 /* PetCollarWidget */ = {
+			isa = PBXGroup;
+			children = (
+				E1000000000000000000F111 /* PetCollarWidget.swift */,
+				E1000000000000000000F123 /* Assets.xcassets */,
+				E1000000000000000000F112 /* Info.plist */,
+				E1000000000000000000F113 /* PetCollarWidget.entitlements */,
+			);
+			path = PetCollarWidget;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000006 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000017 /* PetPalTheme.swift */,
+				A10000000000000000000018 /* PetPalLogo.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000003 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				AB8201000000000000000002 /* AirCollar.swift */,
+				A10000000000000000000005 /* APIClient.swift */,
+				A10000000000000000000006 /* MJPEGStream.swift */,
+				A10000000000000000000007 /* Models.swift */,
+				A10000000000000000000010 /* AlertEngine.swift */,
+				A10000000000000000000013 /* ESPClient.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000004 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000008 /* ConnectionView.swift */,
+				A10000000000000000000009 /* DetectionsPanelView.swift */,
+				A1000000000000000000000A /* LivePreviewView.swift */,
+				A1000000000000000000000B /* RootView.swift */,
+				A1000000000000000000000C /* TrajectoryView.swift */,
+				A1000000000000000000000D /* VLMPanelView.swift */,
+				A1000000000000000000000E /* Visualization3DView.swift */,
+				A10000000000000000000011 /* StatsPanelView.swift */,
+				A10000000000000000000012 /* AlertsView.swift */,
+				A10000000000000000000014 /* LightControlView.swift */,
+				A10000000000000000000015 /* CameraStreamView.swift */,
+				A10000000000000000000016 /* SpeakerControlView.swift */,
+				FDA2B0A2BF7C46C296DFEC1A /* GPSView.swift */,
+				9D0C78E88F984BFF9C191390 /* CollarDataView.swift */,
+				C1000000000000000000000A /* HealthView.swift */,
+				C2000000000000000000000A /* PetProfileView.swift */,
+				C3000000000000000000000A /* ShopView.swift */,
+				C4000000000000000000000A /* SocialView.swift */,
+				C5000000000000000000000A /* TrainingView.swift */,
+				C9000000000000000000000A /* PassView.swift */,
+				C8000000000000000000000A /* ProUnlockView.swift */,
+				C7000000000000000000000A /* TamagotchiView.swift */,
+				C6000000000000000000000A /* OnboardingView.swift */,
+				7F599451B9994D2FA7E5F6A8 /* MotorControlView.swift */,
+				A1000000000000000000001B /* ArcControlView.swift */,
+				A10000000000000000000019 /* LoginView.swift */,
+				A1000000000000000000001A /* HomeView.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1000000000000000000000F /* PetCollar.app */,
+				E1000000000000000000F110 /* PetCollarWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D10000000000000000000002 /* PetCollar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000002 /* Build configuration list for PBXNativeTarget "PetCollar" */;
+			buildPhases = (
+				E10000000000000000000001 /* Sources */,
+				E10000000000000000000002 /* Frameworks */,
+				E10000000000000000000003 /* Resources */,
+				E1000000000000000000F170 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E1000000000000000000F180 /* PBXTargetDependency */,
+			);
+			packageProductDependencies = (
+				E1000000000000000000F002 /* PetKit */,
+			);
+			name = PetCollar;
+			productName = PetCollar;
+			productReference = A1000000000000000000000F /* PetCollar.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E1000000000000000000F140 /* PetCollarWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1000000000000000000F150 /* Build configuration list for PBXNativeTarget "PetCollarWidget" */;
+			buildPhases = (
+				E1000000000000000000F141 /* Sources */,
+				E1000000000000000000F142 /* Frameworks */,
+				E1000000000000000000F143 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			packageProductDependencies = (
+				E1000000000000000000F160 /* PetKit */,
+			);
+			name = PetCollarWidget;
+			productName = PetCollarWidget;
+			productReference = E1000000000000000000F110 /* PetCollarWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					D10000000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					E1000000000000000000F140 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = F10000000000000000000001 /* Build configuration list for PBXProject "PetCollar" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = C10000000000000000000001;
+			packageReferences = (
+				E1000000000000000000F003 /* XCLocalSwiftPackageReference "../PetKit" */,
+			);
+			productRefGroup = C10000000000000000000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D10000000000000000000002 /* PetCollar */,
+				E1000000000000000000F140 /* PetCollarWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000002 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E1000000000000000000F143 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000F124 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB8201000000000000000001 /* AirCollar.swift in Sources */,
+				B10000000000000000000003 /* PetCollarApp.swift in Sources */,
+				B10000000000000000000004 /* AppState.swift in Sources */,
+				B10000000000000000000005 /* APIClient.swift in Sources */,
+				B10000000000000000000006 /* MJPEGStream.swift in Sources */,
+				B10000000000000000000007 /* Models.swift in Sources */,
+				B10000000000000000000008 /* ConnectionView.swift in Sources */,
+				B10000000000000000000009 /* DetectionsPanelView.swift in Sources */,
+				B1000000000000000000000A /* LivePreviewView.swift in Sources */,
+				B1000000000000000000000B /* RootView.swift in Sources */,
+				B1000000000000000000000C /* TrajectoryView.swift in Sources */,
+				B1000000000000000000000D /* VLMPanelView.swift in Sources */,
+				B1000000000000000000000E /* Visualization3DView.swift in Sources */,
+				B10000000000000000000010 /* AlertEngine.swift in Sources */,
+				B10000000000000000000011 /* StatsPanelView.swift in Sources */,
+				B10000000000000000000012 /* AlertsView.swift in Sources */,
+				B10000000000000000000013 /* ESPClient.swift in Sources */,
+				B10000000000000000000014 /* LightControlView.swift in Sources */,
+				B10000000000000000000015 /* CameraStreamView.swift in Sources */,
+				B10000000000000000000016 /* SpeakerControlView.swift in Sources */,
+				F40E9C568AF54978940FF5CB /* GPSView.swift in Sources */,
+				3C1F078B56934E28984601B2 /* CollarDataView.swift in Sources */,
+				D1000000000000000000000A /* HealthView.swift in Sources */,
+				D2000000000000000000000A /* PetProfileView.swift in Sources */,
+				D3000000000000000000000A /* ShopView.swift in Sources */,
+				D4000000000000000000000A /* SocialView.swift in Sources */,
+				D5000000000000000000000A /* TrainingView.swift in Sources */,
+				D9000000000000000000000A /* PassView.swift in Sources */,
+				D8000000000000000000000A /* ProUnlockView.swift in Sources */,
+				D7000000000000000000000A /* TamagotchiView.swift in Sources */,
+				D6000000000000000000000A /* OnboardingView.swift in Sources */,
+				9FA673B613EC47F29B223B6F /* MotorControlView.swift in Sources */,
+				B1000000000000000000001B /* ArcControlView.swift in Sources */,
+				B10000000000000000000017 /* PetPalTheme.swift in Sources */,
+				B10000000000000000000018 /* PetPalLogo.swift in Sources */,
+				B10000000000000000000019 /* LoginView.swift in Sources */,
+				B1000000000000000000001A /* HomeView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E1000000000000000000F141 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000F120 /* PetCollarWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		F10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F10000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PetCollar/PetCollar.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PetCollar/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petpal.air8201g;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F10000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PetCollar/PetCollar.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PetCollar/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petpal.air8201g;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E1000000000000000000F151 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PetCollarWidget/PetCollarWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PetCollarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "宠宝PetPel";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petpal.air8201g.PetCollarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E1000000000000000000F152 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PetCollarWidget/PetCollarWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = BYYK5SMM2Y;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PetCollarWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "宠宝PetPel";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petpal.air8201g.PetCollarWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F10000000000000000000001 /* Build configuration list for PBXProject "PetCollar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000003 /* Debug */,
+				F10000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F10000000000000000000002 /* Build configuration list for PBXNativeTarget "PetCollar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000005 /* Debug */,
+				F10000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1000000000000000000F150 /* Build configuration list for PBXNativeTarget "PetCollarWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1000000000000000000F151 /* Debug */,
+				E1000000000000000000F152 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		E1000000000000000000F003 /* XCLocalSwiftPackageReference "../PetKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../PetKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E1000000000000000000F002 /* PetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PetKit;
+		};
+		E1000000000000000000F160 /* PetKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PetKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = D10000000000000000000001 /* Project object */;
+}
