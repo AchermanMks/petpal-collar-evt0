@@ -22,8 +22,17 @@ records/raw/**/*.csv
 records/raw/**/*.jsonl
 records/raw/**/*.bin
 *.log
+apps/ios_air8201/build/
+apps/ios_air8201/**/xcuserdata/
+apps/PetKit/.build/
+apps/PetKit/.swiftpm/
+apps/bridge/*.local.json
 
 # 编辑器
 .idea/
 .vscode/
 *.swp
+
+# 桥运行时产物 / 会话探针脚本
+records/bridge_logs/
+records/raw/.*
