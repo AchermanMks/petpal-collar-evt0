@@ -33,13 +33,17 @@ sys.taskInit(function()
         local mv = read_mv()
         -- 对照：主供电脚直读（无分压）
         adc.open(adc.CH_VBAT); local vbat = adc.get(adc.CH_VBAT); adc.close(adc.CH_VBAT)
-        if mv then
+        if mv and mv >= 2500 and mv <= 4400 then
+            local was_low = _G.STATE.battery.ready and _G.STATE.battery.pct < cfg.low_battery_pct
+            _G.STATE.battery.ready = true
             _G.STATE.battery.mv = mv
             _G.STATE.battery.pct = pct(mv)
-            if _G.STATE.battery.pct < cfg.low_battery_pct and not _G.STATE.battery.charging and _G.STATE.mode ~= "charging" then
-                _G.STATE.mode = "low_power"
-            end
+            if not was_low and _G.STATE.battery.pct < cfg.low_battery_pct then _G.PETPAL.event("low_battery", {pct=_G.STATE.battery.pct}) end
+        else
+            _G.STATE.battery.ready = false
+            _G.STATE.battery.pct, _G.STATE.battery.mv = nil, nil
         end
+        _G.PETPAL.refresh_mode()
         log.info("power", "adc0_mv", mv, "pct", _G.STATE.battery.pct, "ch_vbat_mv", vbat, "charging", _G.STATE.battery.charging)
         sys.wait(P.sample_period_ms)
     end
@@ -50,11 +54,12 @@ gpio.debounce(gpio.WAKEUP1, 200)
 gpio.setup(gpio.WAKEUP1, function()
     local lv = gpio.get(gpio.WAKEUP1)
     _G.STATE.battery.charging = (lv == 1)
-    _G.STATE.mode = (lv == 1) and "charging" or "routine"
+    _G.PETPAL.refresh_mode()
     log.info("power", lv == 1 and "CHARGING_START" or "CHARGING_STOP")
     sys.publish(lv == 1 and "CHARGING_START" or "CHARGING_STOP")
 end, gpio.PULLDOWN, gpio.BOTH)
 _G.STATE.battery.charging = (gpio.get(gpio.WAKEUP1) == 1)
+_G.PETPAL.refresh_mode()
 
 -- PWRKEY 长按 7 s 关机（轮询法，来自出厂工程）
 gpio.debounce(gpio.PWR_KEY, 200)

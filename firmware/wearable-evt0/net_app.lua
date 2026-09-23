@@ -35,12 +35,13 @@ sys.taskInit(function()
     sys.publish("NET_READY", dt)
 end)
 
+sys.subscribe("IP_READY", function() _G.STATE.online = true; sys.publish("NET_READY") end)
 sys.subscribe("IP_LOSE", function() _G.STATE.online = false; log.warn("net", "IP_LOSE") end)
 
 -- 每 30 s 刷新信号
 sys.timerLoopStart(function()
     local rsrp, rssi, csq = mobile.rsrp(), mobile.rssi(), mobile.csq()
-    _G.STATE.radio.rsrp_dbm = rsrp or -140
-    _G.STATE.radio.rssi_dbm = rssi or -114
+    _G.STATE.radio.rsrp_dbm = (rsrp and rsrp>=-160 and rsrp<=-40) and rsrp or nil
+    _G.STATE.radio.rssi_dbm = (rssi and rssi>=-130 and rssi<=-20) and rssi or nil
     log.info("net", "rsrp", rsrp, "rssi", rssi, "csq", csq, "status", mobile.status())
 end, 30000)

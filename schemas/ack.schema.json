@@ -11,9 +11,10 @@
     "ts": {"type": "integer"},
     "status": {"enum": ["accepted", "executed", "rejected", "error"]},
     "reason": {
-      "enum": ["expired", "duplicate", "wrong_device", "bad_time", "low_battery", "charging", "over_temp", "cooldown", "limit_clamped", "unsupported", "internal"],
+      "enum": ["expired", "duplicate", "wrong_device", "bad_time", "invalid_time", "invalid_id", "invalid_args", "invalid_ttl", "unsupported_mode", "invalid_fence", "invalid_pattern", "invalid_duration", "clock_unsynced", "low_battery", "battery_unknown", "hardware_unverified", "temperature_unknown", "charging", "over_temp", "busy", "cooldown", "cancelled", "no_fix", "execution_failed", "execution_unknown_after_reboot", "result_storage_failed", "storage_failed", "limit_clamped", "unsupported", "internal"],
       "description": "required when status is rejected/error; limit_clamped may accompany executed"
     },
-    "applied_args": {"type": "object", "description": "args actually executed after firmware clamping"}
+    "applied_args": {"type": "object", "description": "args actually executed after firmware clamping"},
+    "expires_at": {"type": "integer"}
   }
 }

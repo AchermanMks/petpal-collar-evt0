@@ -13,12 +13,16 @@
 | `actuator_app.lua` | LED/马达 GPIO，上电默认关，≤500 ms×3、30 s 冷却 | F7 |
 | `ble_app.lua` | 板载蓝牙 iBeacon 广播 | F10 |
 | `console_app.lua` | USB 用户虚拟串口命令台：`set <feature> 0/1` 写 KV 覆盖功能开关、`status`、`reboot` 等，配合 `tools/usb_cmd.py`，切功能不用重烧 | F0 |
+| `runtime_app.lua` | 安全覆盖模式/走失TTL/围栏/能力状态 | |
+| `command_app.lua` | 时间校验、KV去重与真实终态回执、紧急STOP | |
+| `outbox_app.lua` | 有界KV离线队列，PUBACK后删记录 | |
+| `activity_app.lua` | 活动峰值/活跃时长估计（非校准宠物步数） | |
 | `config.example.lua` | 配置模板，复制为 `config.lua`（gitignore） | |
 | `libs/` | `exgnss.lua`、`lbsLoc2.lua` 官方扩展库副本，随包烧录 | F4 |
 
 ## 烧录包
 
-`main.lua` `console_app.lua` `net_app.lua` `mqtt_app.lua` `gnss_app.lua` `gsensor_app.lua` `power_app.lua` `actuator_app.lua` `ble_app.lua` `config.lua` `ca.crt`
+应加入本目录全部业务 Lua（包括新增 runtime/command/outbox/activity）及 `config.lua`、联网时真实 `ca.crt`；不要漏掉依赖文件。台架用 `tools/build_bench.py` 生成完整配置和manifest，勿直接复制有占位凭据的模板就开启远程控制。
 加 `libs/exgnss.lua` `libs/lbsLoc2.lua`（gnss_app 依赖，底层不内置，见 `libs/README.md`），
 外加底层固件（Air780EGH 系列 LuatOS，版本记录到 `records/bringup_log.csv`）。用 PWM 引脚时再加 LuatIO 生成的 pins json。
 
@@ -48,4 +52,4 @@ Luatools 烧录勾了「清除KV分区」会一并清掉覆盖。
 
 ## 未实现（功能都通后再加）
 
-离线 ring buffer 持久化补传、FOTA（`libfota3`，参考 `factory/code/ota_manegement.lua`）、stationary 判定与 PSM+。
+离线持久化队列和 stationary 软件逻辑已补齐，尚未通过实板断线/掉电/续航验收。FOTA、LBS回退、音视频、RGB、BLE测距与真正低功耗未完成，详见 `docs/12_AIR_PORT_STATUS.md`。独立 iOS 版本在 `apps/ios_air8201`，不改旧 ESP32 项目。

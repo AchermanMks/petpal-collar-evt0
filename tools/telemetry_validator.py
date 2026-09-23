@@ -57,9 +57,10 @@ def main():
         p = r.get("position")
         if p and abs(p["lat"]) < 1e-6 and abs(p["lng"]) < 1e-6:
             rule_errors.append((n, "position 0,0 reported"))
-        if p is None and "last_fix" not in r:
-            rule_errors.append((n, "position null without last_fix"))
-        per_dev[r["device_id"]].append((n, r))
+        # A cold boot before the first successful fix legitimately has no last_fix.
+        # Never require fabricated coordinates to make an acceptance tool pass.
+        identity=r["device_id"] + ("/boot-" + str(r["boot_count"]) if "boot_count" in r else "")
+        per_dev[identity].append((n, r))
 
     summary = {"records": len(recs), "schema_errors": len(errors), "rule_errors": len(rule_errors), "devices": {}}
     for dev, items in per_dev.items():

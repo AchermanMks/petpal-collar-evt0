@@ -6,8 +6,8 @@ local B = cfg.ble
 if not bluetooth then log.error("ble", "bluetooth lib missing in this core firmware"); return end
 
 local function cb(evt, param)
-    if evt == bluetooth.EVENT_ADV_START then log.info("ble", "adv started")
-    elseif evt == bluetooth.EVENT_ADV_STOP then log.info("ble", "adv stopped")
+    if evt == bluetooth.EVENT_ADV_START then _G.STATE.ble_ready=true; log.info("ble", "adv started")
+    elseif evt == bluetooth.EVENT_ADV_STOP then _G.STATE.ble_ready=false; log.info("ble", "adv stopped")
     elseif evt == bluetooth.EVENT_CONNECT then log.info("ble", "connected")
     elseif evt == bluetooth.EVENT_DISCONNECT then log.info("ble", "disconnected")
     elseif evt == bluetooth.EVENT_WRITE then log.info("ble", "write", param and json.encode(param))

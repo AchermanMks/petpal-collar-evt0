@@ -1,130 +1,105 @@
---[[ F3/F8/F9：MQTT/TLS 单向校验、telemetry/state/ack 发布、cmd 处理（含去重、过期、硬上限）
-Topic 与 payload 见 schemas/。参考 reference/mqtt/mqtts_ca ]]
-local cfg = _G.CFG
-local Q = cfg.mqtt
-local base = "petpal/v1/" .. cfg.device_id
-local mqttc
-local seen = {}          -- command id 去重（内存，重启清空）
-
-local function now() return os.time() end
-local function pub(topic, tbl, retain)
-    if not mqttc or not mqttc:ready() then log.warn("mqtt", "not ready, drop", topic); return false end
-    local r = mqttc:publish(base .. topic, json.encode(tbl), 1, retain and 1 or 0)
-    return r ~= nil and r ~= false
+-- QoS1 transport: offline durable outbox + terminal command acknowledgements.
+local cfg,S,Q=_G.CFG,_G.STATE,_G.CFG.mqtt
+local base="petpal/v1/"..cfg.device_id
+local queue=require("outbox_app")
+local mqttc,pending,pending_at
+local function pub(topic,tbl,retain)
+    if (topic=="/telemetry" or topic=="/state") and queue.depth()>=((cfg.outbox or {}).max_records or 64)-8 then
+        S.cache_full=true; log.warn("mqtt","cache reserve for events/acks",topic); return false
+    end
+    local ok,reason=queue.push(topic,json.encode(tbl),retain)
+    if not ok then log.error("mqtt","enqueue failed",topic,reason) end
+    return ok
 end
-
-local function publish_state(reason, online)
-    return pub("/state", { v = 1, device_id = cfg.device_id, ts = now(), online = online ~= false,
-                           mode = _G.STATE.mode, fw = cfg.fw, reason = reason,
-                           boot_count = 0, cache_depth = 0 }, true)
+local function state(reason)
+    return pub("/state",{v=1,device_id=cfg.device_id,ts=_G.PETPAL.clock_valid() and os.time() or 0,
+        online=S.mqtt_online,mode=S.mode,fw=cfg.fw,reason=reason,boot_count=S.boot_count,
+        cache_depth=queue.depth(),capabilities=_G.PETPAL.capabilities()},true)
 end
-
-local function publish_telemetry()
-    local S = _G.STATE
-    S.seq = S.seq + 1
-    local m = { v = 1, device_id = cfg.device_id, seq = S.seq, ts = now(), mode = S.mode,
-                position = S.position or json.null,
-                motion = { state = S.motion.state, steps = S.motion.steps },
-                battery = { pct = S.battery.pct, mv = S.battery.mv, charging = S.battery.charging },
-                radio = { rsrp_dbm = S.radio.rsrp_dbm, rssi_dbm = S.radio.rssi_dbm }, fw = cfg.fw }
-    if not S.position and S.last_fix then m.last_fix = S.last_fix end
-    if S.position then S.position.fix_age_s = math.max(0, now() - (S.last_fix and S.last_fix.ts or now())) end
-    local ok = pub("/telemetry", m)
-    log.info("mqtt", "telemetry seq", S.seq, ok and "sent" or "DROPPED")
+local function telemetry()
+    S.seq=S.seq+1
+    local p
+    if S.position then p={}; for k,v in pairs(S.position) do p[k]=v end; p.accuracy_m=p.accuracy_m or json.null end
+    if p then p.fix_age_s=math.max(0,os.time()-(S.last_fix and S.last_fix.ts or os.time())) end
+    local m={v=1,device_id=cfg.device_id,seq=S.seq,boot_count=S.boot_count,
+        ts=_G.PETPAL.clock_valid() and os.time() or 0,clock_synced=_G.PETPAL.clock_valid(),mode=S.mode,
+        position=p or json.null,last_fix=S.last_fix,motion=S.motion,outputs=S.outputs,
+        battery={ready=S.battery.ready,pct=S.battery.pct or json.null,mv=S.battery.mv or json.null,
+            charging=S.battery.charging,temp_c=S.battery.temp_c},
+        radio={rsrp_dbm=S.radio.rsrp_dbm or json.null,rssi_dbm=S.radio.rssi_dbm or json.null},
+        capabilities=_G.PETPAL.capabilities(),fw=cfg.fw}
+    return pub("/telemetry",m)
 end
+sys.subscribe("PETPAL_EVENT",function(e) pub("/event",e) end)
+_G.MQTT_PUB=pub   -- 供 LOG_UPLOAD 等按需发布（同样走 outbox / QoS1）
+sys.subscribe("PETPAL_STATE_REQUEST",function() state("requested"); telemetry() end)
+sys.subscribe("MODE_CHANGED",function() state("mode_change") end)
 
-local function ack(id, status, reason, applied)
-    local a = { id = id, device_id = cfg.device_id, ts = now(), status = status }
-    if reason then a.reason = reason end
-    if applied then a.applied_args = applied end
-    pub("/ack", a)
-    log.info("mqtt", "ack", id, status, reason or "")
-end
-
-local function handle_cmd(payload)
-    local ok, c = pcall(json.decode, payload)
-    if not ok or type(c) ~= "table" or not c.id then log.warn("mqtt", "bad cmd", payload); return end
-    local t = now()
-    if c.device_id and c.device_id ~= cfg.device_id then return ack(c.id, "rejected", "wrong_device") end
-    if seen[c.id] then return ack(c.id, "rejected", "duplicate") end
-    seen[c.id] = t
-    if c.expires_at and c.expires_at < t then return ack(c.id, "rejected", "expired") end
-    if c.issued_at and math.abs(t - c.issued_at) > 600 then return ack(c.id, "rejected", "bad_time") end
-    ack(c.id, "accepted")
-    sys.taskInit(function()
-        local ACT = _G.ACT
-        if c.type == "VIBRATE" then
-            if not ACT then return ack(c.id, "rejected", "unsupported") end
-            local reason = ACT.check_allowed(t)
-            if reason then return ack(c.id, "rejected", reason) end
-            local args, clamped = ACT.clamp_vibrate(c.args)
-            ACT.vibrate(args)
-            return ack(c.id, "executed", clamped and "limit_clamped" or nil, args)
-        elseif c.type == "LED" then
-            if not ACT then return ack(c.id, "rejected", "unsupported") end
-            ACT.led((c.args or {}).pattern or "blink", (c.args or {}).duration_s or 5)
-            return ack(c.id, "executed")
-        elseif c.type == "SET_MODE" then
-            local m = c.args and c.args.mode
-            if m == "routine" or m == "lost" then _G.STATE.mode = m; publish_state("mode_change"); return ack(c.id, "executed") end
-            return ack(c.id, "rejected", "unsupported")
-        elseif c.type == "LOCATE_NOW" then
-            if _G.GNSS then _G.GNSS.locate(60) end
-            publish_telemetry(); return ack(c.id, "executed")
-        elseif c.type == "GET_STATE" then
-            publish_state("periodic"); return ack(c.id, "executed")
+local function on_event(client,event,data,payload)
+    if event=="conack" then
+        S.mqtt_online=true; pending=nil
+        client:subscribe(base.."/cmd",1); state("connect"); sys.publish("MQTT_READY")
+    elseif event=="recv" and data==base.."/cmd" then
+        if type(payload)~="string" or #payload>2048 then return end
+        local ok,c=pcall(json.decode,payload)
+        if not ok then return end
+        -- Leave room for acknowledgements/events; terminal result also persists in dedup KV.
+        if queue.depth()>((cfg.outbox or {}).max_records or 64)-8 then
+            log.error("mqtt","command blocked: ack queue full"); return
         end
-        return ack(c.id, "rejected", "unsupported")
-    end)
+        _G.COMMAND.handle(c,function(a) return pub("/ack",a) end)
+    elseif event=="sent" then
+        if pending and pending.message_id==data then
+            if queue.confirm(pending.record) then pending=nil; sys.publish("OUTBOX_READY") end
+        end
+    elseif event=="disconnect" then
+        S.mqtt_online=false; pending=nil; queue.mark_replayed()
+    elseif event=="error" then log.warn("mqtt","transport error",data) end
 end
 
-local function on_event(client, event, data, payload, metas)
-    if event == "conack" then
-        log.info("mqtt", "connected")
-        client:subscribe(base .. "/cmd", 1)
-        publish_state("boot")
-        sys.publish("MQTT_READY")
-    elseif event == "recv" then
-        handle_cmd(payload)
-    elseif event == "sent" then
-        -- data = message id
-    elseif event == "disconnect" then
-        log.warn("mqtt", "disconnected")
-    elseif event == "error" then
-        log.error("mqtt", "error", data, payload)
-    end
-end
-
+-- Collector is independent of connection establishment (otherwise nothing caches offline).
 sys.taskInit(function()
-    while not socket.adapter(socket.dft()) do sys.waitUntil("IP_READY", 1000) end
-    -- TLS 校验需要正确时间：先 sntp，超时则用基站时间
-    socket.sntp(); sys.waitUntil("NTP_UPDATE", 8000)
-    log.info("mqtt", "time", os.date("%Y-%m-%d %H:%M:%S"))
-    local opts
-    if Q.tls then
-        local ca = io.readFile(Q.ca_file)
-        if not ca then log.error("mqtt", "CA file missing", Q.ca_file); return end
-        opts = { server_cert = ca }
-    end
-    mqttc = mqtt.create(nil, Q.host, Q.port, opts)
-    if not mqttc then log.error("mqtt", "create failed"); return end
-    mqttc:auth(Q.client_id or cfg.device_id, Q.user, Q.pass, true)
-    mqttc:keepalive(Q.keepalive)
-    mqttc:will(base .. "/state", json.encode({ v = 1, device_id = cfg.device_id, ts = 0, online = false, reason = "lwt" }), 1, 1)
-    mqttc:on(on_event)
-    mqttc:autoreconn(true, 5000)
-    local r = mqttc:connect()
-    log.info("mqtt", "connect()", r, Q.host, Q.port, Q.tls and "tls" or "plain")
-
-    sys.waitUntil("MQTT_READY", 60000)
     while true do
-        publish_telemetry()
-        local S = _G.STATE
-        local period = cfg.telemetry_period_s
-        if S.mode == "lost" then period = math.min(period, 20)
-        elseif S.mode == "stationary" or S.mode == "low_power" then period = math.max(period, 3600) end
-        sys.wait(period * 1000)
+        telemetry()
+        local period=cfg.telemetry_period_s or 30
+        if S.mode=="lost" then period=math.min(period,20)
+        elseif S.mode=="stationary" or S.mode=="low_power" then period=math.max(period,300) end
+        sys.wait(math.max(5,period)*1000)
     end
 end)
 
-sys.subscribe("GSENSOR_MOTION", function() if _G.STATE.mode == "stationary" then _G.STATE.mode = "routine" end end)
+sys.taskInit(function()
+    if not Q or Q.host=="broker.example.com" or Q.pass=="CHANGE_ME" then log.error("mqtt","real broker credentials not configured"); return end
+    if Q.tls~=true then log.error("mqtt","TLS required for remote commands"); return end
+    local ca=io.readFile(Q.ca_file)
+    if not ca or #ca==0 then log.error("mqtt","CA missing"); return end
+    while not socket.adapter(socket.dft()) do sys.waitUntil("IP_READY",1000) end
+    while not _G.PETPAL.clock_valid() do socket.sntp(); sys.waitUntil("NTP_UPDATE",10000) end
+    mqttc=mqtt.create(nil,Q.host,Q.port,{server_cert=ca})
+    if not mqttc then log.error("mqtt","create failed"); return end
+    mqttc:auth(Q.client_id or cfg.device_id,Q.user,Q.pass,true)
+    mqttc:keepalive(Q.keepalive or 120)
+    mqttc:will(base.."/state",json.encode({v=1,device_id=cfg.device_id,ts=0,online=false,mode=S.mode,
+        fw=cfg.fw,reason="lwt",boot_count=S.boot_count,cache_depth=0}),1,1)
+    mqttc:on(on_event); mqttc:autoreconn(true,5000); mqttc:connect()
+    while true do
+        if pending and mcu.ticks()-pending_at>30000 then
+            -- Late PUBACK cannot match a subsequent message; force clean reconnect.
+            mqttc:disconnect(); pending=nil; S.mqtt_online=false; queue.mark_replayed(); mqttc:connect()
+        end
+        if not pending and mqttc:ready() then
+            local r=queue.oldest()
+            if r then
+                local payload=r.payload
+                if r.replayed and r.topic=="/telemetry" then
+                    local ok,t=pcall(json.decode,payload)
+                    if ok and type(t)=="table" then t.replayed=true; payload=json.encode(t) end
+                end
+                local id=mqttc:publish(base..r.topic,payload,1,r.retain and 1 or 0)
+                if type(id)=="number" then pending={record=r,message_id=id}; pending_at=mcu.ticks() end
+            end
+        end
+        sys.waitUntil("OUTBOX_READY",500)
+    end
+end)
+return {telemetry=telemetry,state=state,queue=queue}

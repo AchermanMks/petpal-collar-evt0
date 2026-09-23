@@ -3,41 +3,190 @@
   "$id": "petpal/v1/cmd",
   "title": "PetPal backend -> collar command (topic petpal/v1/{device_id}/cmd, QoS 1)",
   "type": "object",
-  "required": ["id", "issued_at", "expires_at", "type"],
+  "required": [
+    "id",
+    "issued_at",
+    "expires_at",
+    "type"
+  ],
   "additionalProperties": false,
   "properties": {
-    "id": {"type": "string", "minLength": 8, "maxLength": 64},
-    "device_id": {"type": "string"},
-    "issued_at": {"type": "integer"},
-    "expires_at": {"type": "integer"},
-    "type": {"enum": ["SET_MODE", "LOCATE_NOW", "VIBRATE", "LED", "BUZZ", "GET_STATE", "FOTA", "LOG_UPLOAD"]},
-    "args": {"type": "object"}
+    "id": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 64
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "issued_at": {
+      "type": "integer"
+    },
+    "expires_at": {
+      "type": "integer"
+    },
+    "type": {
+      "enum": [
+        "SET_MODE",
+        "SET_GEOFENCE",
+        "LOCATE_NOW",
+        "VIBRATE",
+        "LED",
+        "STOP",
+        "BUZZ",
+        "GET_STATE",
+        "FOTA",
+        "LOG_UPLOAD",
+        "GSENSOR_TUNE"
+      ]
+    },
+    "args": {
+      "type": "object"
+    }
   },
   "$defs": {
     "VIBRATE_args": {
       "type": "object",
-      "required": ["duration_ms", "count"],
+      "required": [
+        "duration_ms",
+        "count"
+      ],
       "properties": {
-        "duration_ms": {"type": "integer", "minimum": 50, "maximum": 500, "description": "firmware hard limit 500 ms"},
-        "count": {"type": "integer", "minimum": 1, "maximum": 3, "description": "firmware hard limit 3"},
-        "level": {"enum": ["min", "default"]}
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 500,
+          "description": "firmware hard limit 500 ms"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "firmware hard limit 3"
+        },
+        "level": {
+          "enum": [
+            "min",
+            "default"
+          ]
+        }
       }
     },
     "LED_args": {
       "type": "object",
-      "required": ["pattern", "duration_s"],
+      "required": [
+        "pattern",
+        "duration_s"
+      ],
       "properties": {
-        "pattern": {"enum": ["blink", "breathe", "off"]},
-        "duration_s": {"type": "integer", "minimum": 1, "maximum": 300}
+        "pattern": {
+          "enum": [
+            "on",
+            "blink",
+            "breathe",
+            "off"
+          ]
+        },
+        "duration_s": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300
+        }
       }
     },
     "SET_MODE_args": {
       "type": "object",
-      "required": ["mode"],
+      "required": [
+        "mode"
+      ],
       "properties": {
-        "mode": {"enum": ["routine", "lost"]},
-        "ttl_s": {"type": "integer", "minimum": 60, "maximum": 7200, "description": "lost mode auto-expiry, 2 h max before renewal prompt"}
+        "mode": {
+          "enum": [
+            "routine",
+            "lost"
+          ]
+        },
+        "ttl_s": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 7200,
+          "description": "lost mode auto-expiry, 2 h max before renewal prompt"
+        }
       }
+    },
+    "BUZZ_args": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "beep",
+            "test",
+            "tts",
+            "file",
+            "meow"
+          ]
+        },
+        "freq_hz": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 8000
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 10000
+        },
+        "volume": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "firmware clamps to audio.max_volume"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 180
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]{1,32}$"
+        }
+      }
+    },
+    "LOG_UPLOAD_args": {
+      "type": "object",
+      "properties": {
+        "lines": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 60
+        }
+      }
+    },
+    "GSENSOR_TUNE_args": {
+      "type": "object",
+      "required": [
+        "key"
+      ],
+      "properties": {
+        "key": {
+          "enum": [
+            "fast",
+            "readreg",
+            "sample"
+          ]
+        },
+        "value": {
+          "type": [
+            "string",
+            "number"
+          ]
+        }
+      },
+      "description": "bench diagnostics only"
     }
   }
 }
