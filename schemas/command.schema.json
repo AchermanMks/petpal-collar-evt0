@@ -37,7 +37,8 @@
         "GET_STATE",
         "FOTA",
         "LOG_UPLOAD",
-        "GSENSOR_TUNE"
+        "GSENSOR_TUNE",
+        "LIVE"
       ]
     },
     "args": {
@@ -187,6 +188,30 @@
         }
       },
       "description": "bench diagnostics only"
+    },
+    "LIVE_args": {
+      "type": "object",
+      "required": [
+        "action"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "start",
+            "stop"
+          ]
+        },
+        "interval_s": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 30
+        },
+        "config": {
+          "type": "object",
+          "description": "camera config k=v (x,y,w,h,quality,sum)"
+        }
+      },
+      "description": "4G still-frame live view; start must be renewed within 30 s"
     }
   }
 }

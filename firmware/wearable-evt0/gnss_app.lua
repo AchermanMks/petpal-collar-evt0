@@ -33,10 +33,56 @@ local function read_fix()
     if not lat or not lng or math.abs(lat) > 90 or math.abs(lng) > 180 then return nil end
     if math.abs(lat) < 1e-6 and math.abs(lng) < 1e-6 then return nil end      -- 0,0 不是定位
     local hdop = num(gga.hdop)
-    return { source = "gnss", lat = lat, lng = lng,
+    return { source = "gnss", lat = lat, lng = lng, hdop = hdop,
              accuracy_m = hdop and hdop < 50 and math.max(10, hdop * 10) or nil, accuracy_estimated = true, fix_age_s = 0,
              sats = num(gga.satellites_tracked) or num(gga.sv) or 0,
              speed_kmh = (num(rmc.speed) or 0) * 1.852, alt_m = num(gga.altitude) or num(gga.alt) or 0 }
+end
+
+-- 质量门 + 静止平均（2026-09-23，用户要求）
+--   门：卫星 < min_sats 或 HDOP > max_hdop 的定位不上报（保留上一次好定位，标记 gated）
+--   平均：连续定位间移动距离都 < still_m 且速度 < still_kmh 视为静止，对最近 avg_n 次取均值；一旦判定移动立即回到原始值，不引入滞后
+local F = { min_sats = 6, max_hdop = 2.5, still_m = 8, still_kmh = 2, avg_n = 8, max_jump_m = 300 }
+for k, v in pairs(G.filter or {}) do F[k] = v end
+local win = {}          -- 最近的原始定位（静止窗口）
+local last_raw          -- 上一次通过质量门的原始定位
+S.gnss.filter = { gated = 0, averaged = false, window = 0 }
+
+local function haversine(a, b)
+    local rad = math.pi / 180
+    local x = math.sin((b.lat - a.lat) * rad / 2) ^ 2 + math.cos(a.lat * rad) * math.cos(b.lat * rad) * math.sin((b.lng - a.lng) * rad / 2) ^ 2
+    return 6371000 * 2 * math.asin(math.sqrt(math.max(0, math.min(1, x))))
+end
+
+function M.filter_reset() win = {}; last_raw = nil; S.gnss.filter.averaged, S.gnss.filter.window = false, 0 end
+
+-- 返回要上报的位置（原始或平均后的副本），或 nil（被质量门拦下）
+function M.filter(raw)
+    if raw.sats < F.min_sats or (raw.hdop and raw.hdop > F.max_hdop) then
+        S.gnss.filter.gated = S.gnss.filter.gated + 1; return nil
+    end
+    -- 单点大跳变（>max_jump_m 且上一点很近的时间）先按可疑处理：不进窗口，但仍上报原始值让 App 看到
+    local moving = raw.speed_kmh >= F.still_kmh
+    if last_raw and not moving then
+        local d = haversine(last_raw, raw)
+        if d > F.still_m then moving = true end
+    end
+    last_raw = raw
+    if moving then win = {}; S.gnss.filter.averaged, S.gnss.filter.window = false, 0; return raw end
+    win[#win + 1] = raw
+    while #win > F.avg_n do table.remove(win, 1) end
+    S.gnss.filter.window = #win
+    if #win < 3 then S.gnss.filter.averaged = false; return raw end
+    local out = {}; for k, v in pairs(raw) do out[k] = v end
+    local lat, lng, alt = 0, 0, 0
+    for _, w in ipairs(win) do lat = lat + w.lat; lng = lng + w.lng; alt = alt + (w.alt_m or 0) end
+    out.lat, out.lng, out.alt_m = lat / #win, lng / #win, alt / #win
+    out.speed_kmh = 0
+    -- 平均后的精度估计：原估计 / sqrt(n)，下限 5 m
+    if out.accuracy_m then out.accuracy_m = math.max(5, out.accuracy_m / math.sqrt(#win)) end
+    out.averaged_n = #win
+    S.gnss.filter.averaged = true
+    return out
 end
 
 -- 可见卫星统计（未定位时判断天线/环境用）
@@ -72,6 +118,7 @@ end
 function M.pause(why)
     if paused then return end
     paused = true; S.gnss.paused = why or true; S.gnss.fix = false
+    M.filter_reset()   -- 暂停期间可能被移动过，旧窗口作废
     if G.tracking == true then pcall(exgnss.close, exgnss.DEFAULT, { tag = "petpal_track" }) end
     log.info("gnss", "paused", why)
 end
@@ -101,7 +148,8 @@ function M.locate(timeout_s)
     local topic = "GNSS_DONE_" .. tostring(t0)
     local pos
     exgnss.open(exgnss.TIMERORSUC, { tag = "petpal", val = timeout_s, cb = function(tag)
-        pos = read_fix()
+        local raw = read_fix()
+        pos = raw and (M.filter(raw) or raw)   -- 一次性定位：门拦下也按原始值给，总比没有好，但 hdop/sats 随包上报
         sys.publish(topic)
     end })
     local woke = sys.waitUntil(topic, (timeout_s + 5) * 1000)
@@ -127,9 +175,13 @@ sys.taskInit(function()
         while true do
             sys.wait(1000); n = n + 1
             if paused then goto continue end
-            local pos = read_fix()
+            local raw = read_fix()
+            local pos = raw and M.filter(raw)
             if pos then
                 publish(pos)
+            elseif raw then
+                -- 有定位但没过质量门：保留上一次好位置，fix 标记仍为真（接收机是锁定的）
+                S.gnss.fix = true; S.gnss.sats = raw.sats
             else
                 -- 失锁：位置保留但会变旧，App 按 fix_age_s>120 s 判无效；不编造坐标
                 if S.gnss.fix then log.warn("gnss", "fix lost") end

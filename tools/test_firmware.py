@@ -74,6 +74,20 @@ assert(ACT.led("on",300) and STATE.outputs.led_on and outputs[16]==1)
 local first=timers[#timers]; assert(first.ms==300000)
 assert(ACT.led("off",0) and not STATE.outputs.led_on)
 assert(ACT.led("on",5)); first.f(); assert(STATE.outputs.led_on,"obsolete timer switched off new command")
+-- breathe = software PWM: LED on-fraction must be ~5% at the start of the 3 s period and ~100% in the middle, ending with LED off.
+-- In this scheduler each step() yields the next wait, so "state after step" holds for (tick_after - tick_before).
+outputs[16]=0; tick=0
+sys.taskInit(function() assert(ACT.led("breathe",3)) end)
+local on_early,tot_early,on_mid,tot_mid=0,0,0,0
+local n=0
+while #tasks>0 and n<5000 do
+    local t=tick; step(); n=n+1
+    local dur=tick-t; local st=outputs[16]
+    if t<200 then tot_early=tot_early+dur; if st==1 then on_early=on_early+dur end
+    elseif t>1300 and t<1700 then tot_mid=tot_mid+dur; if st==1 then on_mid=on_mid+dur end end
+end
+assert(#tasks==0 and outputs[16]==0,"breathe ended with LED off")
+assert(tot_early>0 and tot_mid>0 and on_early/tot_early<0.15 and on_mid/tot_mid>0.9,string.format("breathe duty early=%.2f mid=%.2f",on_early/tot_early,on_mid/tot_mid))
 timers[#timers].f(); assert(not STATE.outputs.led_on and outputs[16]==0)
 assert(not STATE.outputs.motor_on)
 assert(R.set_mode("lost",60)); assert(STATE.mode=="lost")
@@ -128,7 +142,7 @@ package.loaded.gnss_app=nil
 local fixed,track_task,opened=false,nil,nil
 package.loaded.exgnss={DEFAULT=1,TIMERORSUC=2,setup=function() end,is_fix=function() return fixed end,
     rmc=function() if not fixed then return nil end; return {lat=22.54,lng=114.05} end,  -- no speed field
-    gga=function() if not fixed then error("no gga yet") end; return {satellites_tracked=7,hdop=99.99} end,
+    gga=function() if not fixed then error("no gga yet") end; return {satellites_tracked=7} end,   -- no hdop field at all
     gsv=function() return {total_sats=9,sats={{snr=31},{snr=0},{snr=18},{}}} end,
     open=function(mode,t) opened={mode,t.tag} end,close=function() end}
 CFG.gnss={mode=1,nmea_debug=false,agps=false,uart_id=2,power_gpio=21,timeout_s=90,tracking=true}
@@ -143,11 +157,23 @@ assert(STATE.position==nil and STATE.gnss.fix==false)
 local g=gnss.status(); assert(g.sats_in_view==9 and g.sats_with_signal==2 and g.snr_max==31)
 fixed=true; assert(coroutine.resume(track_task))
 assert(STATE.position.lat==22.54 and STATE.position.sats==7 and STATE.position.speed_kmh==0 and STATE.position.alt_m==0)
-assert(STATE.position.accuracy_m==nil,"hdop 99.99 means no accuracy estimate")
+assert(STATE.position.accuracy_m==nil,"no hdop means no accuracy estimate")
 assert(STATE.gnss.fix==true and STATE.gnss.ttff_s>=3)
 fixed=false; for i=1,8 do assert(coroutine.resume(track_task)) end
 assert(STATE.gnss.fix==false and STATE.position.lat==22.54,"lost fix keeps last position, flagged not fixed")
 assert(gnss.locate()==false)
+-- quality gate + stationary averaging
+gnss.filter_reset(); STATE.gnss.filter.gated=0
+local base={source="gnss",lat=22.5400,lng=114.0500,hdop=1.0,sats=8,speed_kmh=0,alt_m=10,accuracy_m=10}
+local function fixat(dlat,dlng,extra) local r={}; for k,v in pairs(base) do r[k]=v end; r.lat=r.lat+dlat; r.lng=r.lng+dlng; for k,v in pairs(extra or {}) do r[k]=v end; return r end
+assert(gnss.filter(fixat(0,0,{sats=4}))==nil and STATE.gnss.filter.gated==1,"few sats gated")
+assert(gnss.filter(fixat(0,0,{hdop=3.1}))==nil and STATE.gnss.filter.gated==2,"bad hdop gated")
+local p1=gnss.filter(fixat(0,0)); assert(p1 and p1.averaged_n==nil,"first point raw")
+local p2=gnss.filter(fixat(0.00002,0)); assert(p2.averaged_n==nil,"needs 3 points before averaging")
+local p3=gnss.filter(fixat(-0.00002,0.00002)); assert(p3.averaged_n==3 and math.abs(p3.lat-22.54)<1e-9 and math.abs(p3.lng-(114.05+0.00002/3))<1e-9 and p3.accuracy_m<10 and p3.speed_kmh==0,"3 still points averaged")
+for i=1,10 do gnss.filter(fixat(0.00001*(i%2),0)) end; assert(STATE.gnss.filter.window==8,"window capped at avg_n")
+local mv=gnss.filter(fixat(0.0020,0)); assert(mv.averaged_n==nil and STATE.gnss.filter.window==0 and STATE.gnss.filter.averaged==false,"a 200 m jump resets to raw immediately")
+local sp=gnss.filter(fixat(0.0020,0,{speed_kmh=6})); assert(sp.averaged_n==nil,"speed > still_kmh -> raw")
 -- camera/GNSS exclusion: pause closes the tracking app and drops the fix flag, resume reopens it; position is kept
 local closed; package.loaded.exgnss.close=function(mode,t) closed={mode,t.tag} end; opened=nil
 gnss.pause("camera"); assert(closed[1]==1 and closed[2]=="petpal_track" and STATE.gnss.paused=="camera" and STATE.gnss.fix==false and STATE.position.lat==22.54)

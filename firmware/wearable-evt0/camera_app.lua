@@ -3,7 +3,8 @@
 -- 2026-09-20 提速：连拍期间传感器保持打开（空闲 IDLE_CLOSE_MS 后断电释放 I2C1）；最多保留 2 帧
 -- （一帧在传、一帧预取）；二进制窗口读 slice() 供 console 的 camera read；画质/裁剪/校验算法可运行时配置。
 local C=_G.CFG.camera or {}
-local M={MAX_BYTES=262144,CHUNK_BYTES=1024,MAX_READ=16384,IDLE_CLOSE_MS=6000,FRAME_TTL_MS=20000,tx_busy=false}
+local M={MAX_BYTES=262144,CHUNK_BYTES=1024,MAX_READ=16384,IDLE_CLOSE_MS=15000,FRAME_TTL_MS=20000,tx_busy=false,
+         LIVE_MAX_BYTES=200000,LIVE_TTL_MS=30000,LIVE_MIN_S=0.5,LIVE_MAX_S=30,LIVE_FRAMES_PER_HOUR=7200}
 local frames,order={},{}            -- id -> {data=string,expires=ticks}
 local busy,ex,model,idle_timer=false,nil,nil,nil
 local opt={quality=1,sum="adler32"} -- camera config quality=N sum=adler32|crc32 x= y= w= h= | crop=off
@@ -124,6 +125,59 @@ local function checked(wanted,offset)
     f.expires=mcu.ticks()+M.FRAME_TTL_MS
     return f
 end
+-- 整帧原始字节（云端实况直传用）
+function M.data(wanted)
+    local f=live(wanted); if not f then return nil,"frame_expired" end
+    return f.data
+end
+
+-- 4G 云端实况：LIVE start 后按 interval 拍照并经 MQTT 直传（QoS0，不落盘队列）；须 LIVE start 续期，LIVE_TTL_MS 内无续期自动停。
+-- 每帧走 camera config 的裁剪/画质（云端桥默认 320x240）；超过 LIVE_MAX_BYTES 的帧丢弃不传（broker 单包上限）。
+local live_until,live_interval,live_seq,live_task,hour_start,hour_frames=0,3,0,nil,0,0
+function M.live_start(interval_s)
+    if not _G.MQTT_RAW_PUB then return false,"unsupported" end
+    if C.board~="Air8201G_BTB_V1.4" then return false,"camera_wiring_unverified" end
+    if not camera then return false,"camera_core_unavailable" end
+    local iv=interval_s==nil and 3 or tonumber(interval_s or "")
+    if not iv or iv~=iv or iv<M.LIVE_MIN_S or iv>M.LIVE_MAX_S then return false,"invalid_args" end
+    live_interval=iv; live_until=mcu.ticks()+M.LIVE_TTL_MS
+    if live_task then return true,nil,{interval_s=live_interval,renewed=true} end
+    live_task=true
+    sys.taskInit(function()
+        log.info("camera","live start interval",live_interval)
+        while mcu.ticks()<live_until do
+            local now=mcu.ticks()
+            if now-hour_start>3600000 then hour_start,hour_frames=now,0 end
+            if hour_frames>=M.LIVE_FRAMES_PER_HOUR then log.warn("camera","live frame budget exhausted"); break end
+            local t_frame=mcu.ticks()
+            if not busy then
+                local fid="live"..string.format("%08x",live_seq%0xFFFFFFFF); live_seq=live_seq+1
+                local topic="LIVE_"..fid; local hdr
+                local ok=M.capture(fid,function(r) hdr=r; sys.publish(topic) end)
+                if ok then
+                    sys.waitUntil(topic,8000)
+                    local data=hdr and hdr:sub(1,6)=="frame " and M.data(fid) or nil
+                    if data then
+                        if #data<=M.LIVE_MAX_BYTES then
+                            hour_frames=hour_frames+1
+                            _G.MQTT_RAW_PUB("/frame","PPF1"..string.format("%08x%08x",live_seq,mcu.ticks()%0xFFFFFFFF)..data)
+                        else log.warn("camera","live frame too large",#data,"lower quality/crop") end
+                    end
+                    M.release(fid)
+                end
+            end
+            -- 间隔按“帧开始到帧开始”算：拍照+上传已耗掉的时间不再重复等；最少让出 50 ms
+            sys.wait(math.max(50,math.floor(live_interval*1000-(mcu.ticks()-t_frame))))
+        end
+        live_task=nil; log.info("camera","live stop")
+        _G.STATE.camera_live=false
+    end)
+    _G.STATE.camera_live=true
+    return true,nil,{interval_s=live_interval}
+end
+function M.live_stop() live_until=0; _G.STATE.camera_live=false; return true end
+function M.live_active() return live_task~=nil and mcu.ticks()<live_until end
+
 function M.chunk(wanted,offset)
     local f,e=checked(wanted,offset)
     if not f then return nil,e end

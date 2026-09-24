@@ -55,6 +55,10 @@ function M.validate(c)
         local ttl=a.ttl_s or 7200
         if type(ttl)~="number" or ttl~=ttl or ttl%1~=0 or ttl<60 or ttl>7200 then return "invalid_ttl" end
     elseif c.type=="LOCATE_NOW" then if not _G.GNSS then return "unsupported" end
+    elseif c.type=="LIVE" then
+        if not _G.CAMERA then return "unsupported" end
+        if a.action~="start" and a.action~="stop" then return "invalid_args" end
+        if a.interval_s~=nil and (type(a.interval_s)~="number" or a.interval_s~=a.interval_s) then return "invalid_args" end
     elseif c.type=="GSENSOR_TUNE" then
         if not _G.GSENSOR then return "unsupported" end
         if type(a.key)~="string" or (a.value~=nil and type(a.value)~="string" and type(a.value)~="number") then return "invalid_args" end
@@ -90,6 +94,10 @@ function M.handle(c,reply)
             elseif c.type=="SET_GEOFENCE" then return _G.PETPAL.set_fence(a)
             elseif c.type=="LOCATE_NOW" then local fix=_G.GNSS.locate(60); return fix,fix and nil or "no_fix"
             elseif c.type=="GET_STATE" then sys.publish("PETPAL_STATE_REQUEST"); return true
+            elseif c.type=="LIVE" then
+                if a.action=="stop" then return _G.CAMERA.live_stop() end
+                if type(a.config)=="table" then pcall(_G.CAMERA.config,a.config) end
+                return _G.CAMERA.live_start(a.interval_s)
             elseif c.type=="GSENSOR_TUNE" then local ok,why=_G.GSENSOR.tune(a.key,a.value~=nil and tostring(a.value) or nil); return ok,why,{key=a.key,value=a.value}
             elseif c.type=="LOG_UPLOAD" then local n,why=_G.LOGBUF.upload(a.lines or 60,_G.MQTT_PUB); return n>0,why,{packets=n} end
         end)

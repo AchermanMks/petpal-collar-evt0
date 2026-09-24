@@ -1,6 +1,6 @@
 -- All outputs off at boot. Unverified motor GPIOs are untouched.
 local cfg, A = _G.CFG, _G.CFG.actuator
-local M={MAX_PULSE_MS=500,MAX_COUNT=3,COOLDOWN_S=30}
+local M={MAX_PULSE_MS=500,MAX_COUNT=3,COOLDOWN_S=30,BREATHE_PERIOD_MS=3000,PWM_WINDOW_MS=20}
 -- 命令间隔：佩戴固件按测试方案硬性规则 ≥30 s（默认）。actuator.cooldown_s 只给有人值守的开发板台架缩短，下限 3 s
 if type(A.cooldown_s)=="number" and A.cooldown_s==A.cooldown_s then M.COOLDOWN_S=math.max(3,math.floor(A.cooldown_s)) end
 local last_exec, busy, motor_gen, led_gen=nil,false,0,0
@@ -81,12 +81,28 @@ function M.led(pattern,duration_s)
         return true
     end
     local stop=mcu.ticks()+duration_s*1000
+    if pattern=="breathe" then
+        -- GPIO16 无硬件 PWM：软件 PWM，50 Hz 窗口(20 ms)内按占空比亮灭，占空比随三角波在 BREATHE_PERIOD_MS 内 5%→100%→5%
+        -- （2026-09-24 用户要求真正的呼吸效果；之前是 500/500 ms 慢闪）。只在呼吸期间占 CPU，其它模式不受影响。
+        local period=M.BREATHE_PERIOD_MS
+        local t0=mcu.ticks()
+        while generation==led_gen and mcu.ticks()<stop do
+            local phase=((mcu.ticks()-t0)%period)/period*2
+            local duty=0.05+0.95*(1-math.abs(phase-1))
+            local on_ms=math.floor(duty*M.PWM_WINDOW_MS+0.5)
+            if on_ms>0 then drive_led(true); sys.wait(on_ms) end
+            if generation~=led_gen then return false,"cancelled" end
+            if on_ms<M.PWM_WINDOW_MS then drive_led(false); sys.wait(M.PWM_WINDOW_MS-on_ms) end
+        end
+        if generation==led_gen then drive_led(false) end
+        return generation==led_gen,generation~=led_gen and "cancelled" or nil
+    end
     while generation==led_gen and mcu.ticks()<stop do
         drive_led(true)
-        sys.wait(math.min(pattern=="breathe" and 500 or 200,math.max(0,stop-mcu.ticks())))
+        sys.wait(math.min(200,math.max(0,stop-mcu.ticks())))
         if generation~=led_gen then return false,"cancelled" end
         drive_led(false)
-        sys.wait(math.min(pattern=="breathe" and 500 or 800,math.max(0,stop-mcu.ticks())))
+        sys.wait(math.min(800,math.max(0,stop-mcu.ticks())))
     end
     if generation==led_gen then drive_led(false) end
     return generation==led_gen,generation~=led_gen and "cancelled" or nil

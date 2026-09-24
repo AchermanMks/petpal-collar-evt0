@@ -2,7 +2,7 @@
 -- gsensor 与摄像头共用 I2C1：摄像头打开时 DA267 断电，摄像头空闲关闭后恢复。只用于开发板台架，不是佩戴固件。
 local c=require("bench_defaults")
 c.device_id="collar-evt-003"
-c.fw="evt0.0.18"
+c.fw="evt0.0.22"
 c.features={camera=true,power=true,gnss=true,audio=true,actuator=true,mqtt=true,gsensor=true,ble=false,lowpower=false} -- gsensor 与摄像头运行时二选一
 c.ignore_feature_override=true
 c.camera={board="Air8201G_BTB_V1.4"}

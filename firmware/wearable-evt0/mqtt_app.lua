@@ -32,6 +32,8 @@ local function telemetry()
 end
 sys.subscribe("PETPAL_EVENT",function(e) pub("/event",e) end)
 _G.MQTT_PUB=pub   -- 供 LOG_UPLOAD 等按需发布（同样走 outbox / QoS1）
+-- 实况帧：不落盘、QoS0、连接断开即丢（画面是易失数据，不进 outbox）
+_G.MQTT_RAW_PUB=function(topic,payload) if mqttc and mqttc:ready() then return mqttc:publish(base..topic,payload,0,0) end; return false end
 sys.subscribe("PETPAL_STATE_REQUEST",function() state("requested"); telemetry() end)
 sys.subscribe("MODE_CHANGED",function() state("mode_change") end)
 

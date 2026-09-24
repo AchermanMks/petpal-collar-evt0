@@ -180,6 +180,42 @@ class Tests(unittest.TestCase):
             assert(not M.release("frame-fifth1"))
             camera=nil; assert(not M.capture("frame-abcdef",function() end))
         ''')
+    def test_lua_live_over_mqtt(self):
+        L=LuaRuntime(unpack_returned_tuples=True); L.globals().firmware_path=str(ROOT/'firmware/wearable-evt0'); L.globals().photo_blob=Blob()
+        out=L.eval(r'''function()
+            package.path=firmware_path.."/?.lua;"..package.path
+            local _tn=tonumber; tonumber=function(v,b) if v==nil then error("tonumber(nil)",2) end; if b then return _tn(v,b) end; return _tn(v) end
+            CFG={camera={board="Air8201G_BTB_V1.4"},features={gsensor=false}}
+            STATE={}; camera={init=function() return 1 end,close=function() end}; local tick=0; local tasks={}; local pin={}
+            mcu={ticks=function() return tick end}
+            local timers={}; local waiting={}
+            sys={wait=function(ms) tick=tick+ms; coroutine.yield() end,timerLoopStart=function() end,taskInit=function(f) tasks[#tasks+1]=coroutine.create(f) end,
+                timerStart=function(f,ms) timers[#timers+1]=f; return #timers end,timerStop=function(id) timers[id]=nil end,
+                publish=function(t) waiting[t]=true end,waitUntil=function(t,ms) if not waiting[t] then coroutine.yield() end; waiting[t]=nil; return true end}
+            gpio={setup=function(p,v) pin[p]=v end,set=function(p,v) pin[p]=v end}
+            log={info=function() end,warn=function() end}
+            local reg; i2c={FAST=1,setup=function() return true end,send=function(_,_,s) reg=s:byte(); return true end,recv=function() return string.char(reg==0xf0 and 0x23 or 0x2a) end,close=function() end}
+            package.loaded.excamera={open=function() return true end,photo=function() return true,photo_blob end,close=function() end}
+            local published={}
+            MQTT_RAW_PUB=function(topic,payload) published[#published+1]={topic,payload}; return true end
+            local M=require("camera_app")
+            assert(not M.live_start(0.2) and not M.live_start("x"))
+            local ok,_,applied=M.live_start(3); assert(ok and applied.interval_s==3 and STATE.camera_live==true)
+            local function pump() for _,co in ipairs(tasks) do while coroutine.status(co)=="suspended" do local ok,e=coroutine.resume(co); assert(ok,e); if coroutine.status(co)=="suspended" then break end end end end
+            -- run the live loop: capture task + live task interleave until a frame is published
+            for i=1,12 do pump(); if #published>0 then break end end
+            assert(#published>=1,"frame published over MQTT")
+            local p=published[1]; assert(p[1]=="/frame" and p[2]:sub(1,4)=="PPF1" and #p[2]==20+photo_blob.used() and p[2]:sub(21,22)=="\255\216")
+            assert(M.live_active())
+            -- renew keeps it alive; without renewal it stops after LIVE_TTL_MS
+            local ok2,_,a2=M.live_start(5); assert(ok2 and a2.renewed and a2.interval_s==5)
+            tick=tick+M.LIVE_TTL_MS+1; for i=1,20 do pump() end
+            assert(not M.live_active() and STATE.camera_live==false,"expired without renewal")
+            -- explicit stop
+            assert(M.live_start(2)); M.live_stop(); for i=1,20 do pump() end; assert(not M.live_active())
+            return #published
+        end''')()
+        self.assertGreaterEqual(out,1)
     def test_lua_console_binary_read(self):
         lua=LuaRuntime(unpack_returned_tuples=True)
         lua.globals().firmware_path=str(ROOT/'firmware/wearable-evt0')

@@ -41,6 +41,7 @@ return {
         nmea_debug = false,
         agps = false,             -- 初次无卡台架测试不请求第三方 AGPS
         tracking = false,         -- true=GNSS 常开每秒更新（台架/实时看位置）；false=按模式周期定位后关闭（省电）
+        filter = { min_sats = 6, max_hdop = 2.5, still_m = 8, still_kmh = 2, avg_n = 8 }, -- 质量门 + 静止平均（见 gnss_app.lua）
     },
     gsensor = {
         i2c_id = 1, addr = 0x26,
