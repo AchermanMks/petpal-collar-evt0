@@ -42,8 +42,8 @@ try:
         subprocess.run(['swiftc','-parse-as-library',str(core/'ESPClient.swift'),str(core/'AirCollar.swift'),str(ROOT/'tools/test_air_adapter.swift'),'-o',str(exe)],check=True)
         env=dict(os.environ,PETPAL_AIR_SERVICE_URL=f'http://127.0.0.1:{server.server_port}',PETPAL_AIR_DEVICE_ID='collar-evt-001',PETPAL_BRIDGE_TOKEN='')
         subprocess.run([str(exe)],env=env,check=True,timeout=30)
-        assert [c['type'] for c in commands]==['LED','LED','VIBRATE','STOP']
-        assert commands[0]['args']['pattern']=='on' and commands[1]['args']['pattern']=='off'
-        assert len({c['id'] for c in commands})==4
+        assert [c['type'] for c in commands]==['LED','LED','LED','VIBRATE','STOP']
+        assert commands[0]['args']['pattern']=='on' and commands[1]['args']['pattern']=='off' and commands[2]['args']['pattern']=='breathe'
+        assert len({c['id'] for c in commands})==5
 finally:
     server.shutdown(); server.server_close()

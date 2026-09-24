@@ -113,14 +113,54 @@ struct AirClient: Sendable {
     }
 }
 
+/// GNSS receivers output WGS-84. Map tiles served in mainland China (Apple Maps included) use GCJ-02, and CoreLocation
+/// already returns GCJ-02 there, so a raw WGS-84 collar fix drawn on the map lands a few hundred metres off while the
+/// phone's own dot is right. Standard public WGS-84 -> GCJ-02 transform; identity outside China.
+enum ChinaGeo {
+    static func outOfChina(_ lat: Double,_ lng: Double) -> Bool { !(lng > 72.004 && lng < 137.8347 && lat > 0.8293 && lat < 55.8271) }
+    static func wgs84ToGcj02(lat: Double, lng: Double) -> (lat: Double, lng: Double) {
+        if outOfChina(lat, lng) { return (lat, lng) }
+        let a = 6378245.0, ee = 0.00669342162296594323
+        var dLat = transformLat(lng - 105.0, lat - 35.0), dLng = transformLng(lng - 105.0, lat - 35.0)
+        let radLat = lat / 180.0 * .pi
+        var magic = sin(radLat); magic = 1 - ee * magic * magic
+        let sqrtMagic = sqrt(magic)
+        dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * .pi)
+        dLng = (dLng * 180.0) / (a / sqrtMagic * cos(radLat) * .pi)
+        return (lat + dLat, lng + dLng)
+    }
+    private static func transformLat(_ x: Double, _ y: Double) -> Double {
+        var r = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * sqrt(abs(x))
+        r += (20.0 * sin(6.0 * x * .pi) + 20.0 * sin(2.0 * x * .pi)) * 2.0 / 3.0
+        r += (20.0 * sin(y * .pi) + 40.0 * sin(y / 3.0 * .pi)) * 2.0 / 3.0
+        r += (160.0 * sin(y / 12.0 * .pi) + 320.0 * sin(y * .pi / 30.0)) * 2.0 / 3.0
+        return r
+    }
+    private static func transformLng(_ x: Double, _ y: Double) -> Double {
+        var r = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * sqrt(abs(x))
+        r += (20.0 * sin(6.0 * x * .pi) + 20.0 * sin(2.0 * x * .pi)) * 2.0 / 3.0
+        r += (20.0 * sin(x * .pi) + 40.0 * sin(x / 3.0 * .pi)) * 2.0 / 3.0
+        r += (150.0 * sin(x / 12.0 * .pi) + 300.0 * sin(x / 30.0 * .pi)) * 2.0 / 3.0
+        return r
+    }
+}
+
 enum AirHardwareBackend {
     /// Client for views that talk to the Air service directly (no legacy path to translate).
     static func defaultClient() throws -> AirClient { try client(for: URLRequest(url: URL(string:"http://esp32-led.local/")!)) }
     static func client(for request: URLRequest) throws -> AirClient {
         guard let url=request.url else { throw AirError.unavailable("缺少硬件地址") }
+        // Launch environment first (simctl / Xcode scheme), then persisted settings (UserDefaults, survives launching from
+        // the home screen), then the original address box. Token is never written into source.
         let env=ProcessInfo.processInfo.environment
+        let defaults=UserDefaults.standard
+        func setting(_ key: String) -> String? {
+            if let v=env[key],!v.isEmpty { return v }
+            if let v=defaults.string(forKey:key),!v.isEmpty { return v }
+            return nil
+        }
         let address: String
-        if let configured=env["PETPAL_AIR_SERVICE_URL"],!configured.isEmpty { address=configured }
+        if let configured=setting("PETPAL_AIR_SERVICE_URL") { address=configured }
         else if url.host=="esp32-led.local" {
             #if targetEnvironment(simulator)
             address="http://127.0.0.1:8210"
@@ -133,7 +173,7 @@ enum AirHardwareBackend {
             guard let s=c?.url?.absoluteString else { throw AirError.unavailable("硬件服务地址格式不正确") }
             address=s
         }
-        return try AirClient(address:address,token:env["PETPAL_BRIDGE_TOKEN"] ?? "",deviceID:env["PETPAL_AIR_DEVICE_ID"] ?? "collar-evt-001")
+        return try AirClient(address:address,token:setting("PETPAL_BRIDGE_TOKEN") ?? "",deviceID:setting("PETPAL_AIR_DEVICE_ID") ?? "collar-evt-001")
     }
     static func response(to request: URLRequest) async throws -> Data {
         guard let url=request.url else { throw AirError.unavailable("缺少请求地址") }
@@ -157,6 +197,7 @@ enum AirHardwareBackend {
         case "/capture": return try await c.cameraFrame()
         case "/led/on": try await c.command("LED",args:["pattern":.string("on"),"duration_s":.number(300)])
         case "/led/off": try await c.command("LED",args:["pattern":.string("off"),"duration_s":.number(0)])
+        case "/led/breathe": try await c.command("LED",args:["pattern":.string("breathe"),"duration_s":.number(300)])
         case "/motor/stop", "/speaker/stop", "/arc/stop": try await c.command("STOP",args:[:])
         case "/speaker/beep":
             // Firmware clamps volume/duration to its safety limits and reports applied_args; out-of-range input is rejected there.
@@ -190,7 +231,9 @@ enum AirHardwareBackend {
             }
             let ts=d.telemetry?.last_fix?.ts ?? 0
             let date=ts>=1700000000 ? ISO8601DateFormatter().string(from:Date(timeIntervalSince1970:ts)) : ""
-            return try JSONSerialization.data(withJSONObject:["fix":valid,"lat":p?.lat ?? 0,"lng":p?.lng ?? 0,
+            // The map page draws this on GCJ-02 tiles in China: convert here, keep WGS-84 everywhere else (data panel, cloud).
+            let shown = p.map { ChinaGeo.wgs84ToGcj02(lat: $0.lat, lng: $0.lng) }
+            return try JSONSerialization.data(withJSONObject:["fix":valid,"lat":shown?.lat ?? 0,"lng":shown?.lng ?? 0,
                 "alt":p?.alt_m ?? 0,"speed_kmh":p?.speed_kmh ?? 0,"sats":p?.sats ?? 0,
                 "age_ms":p.map { min(4294967295,max(0,$0.fix_age_s ?? 4294967)*1000) } ?? 4294967295,"datetime":date])
         default: throw AirError.unavailable("Air8201G 尚未接入此硬件接口：\(path)")

@@ -111,6 +111,10 @@ final class ESPClient: @unchecked Sendable {
         try await getPlain("/led/on")
     }
 
+    /// 呼吸灯（Air8201G 固件软件 PWM，3 s 一个周期，持续 5 分钟或直到关灯）
+    func setBreathe() async throws {
+        try await getPlain("/led/breathe")
+    }
     func setOff() async throws {
         try await getPlain("/led/off")
     }

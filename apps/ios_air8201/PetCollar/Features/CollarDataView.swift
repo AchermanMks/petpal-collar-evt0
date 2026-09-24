@@ -144,7 +144,7 @@ struct CollarDataView: View {
                 }
                 row(tr("状态", "Status"), fix ? tr("已定位", "Fixed") : tr("搜星中", "Searching"))
                 if let p {
-                    row(tr("经纬度", "Lat / Lng"), String(format: "%.5f, %.5f", num(p, "lat") ?? 0, num(p, "lng") ?? 0))
+                    row(tr("经纬度 (WGS-84)", "Lat / Lng (WGS-84)"), String(format: "%.5f, %.5f", num(p, "lat") ?? 0, num(p, "lng") ?? 0))
                     row(tr("定位年龄", "Fix age"), num(p, "fix_age_s").map { duration($0) } ?? "—")
                     row(tr("卫星数", "Satellites"), fmt(num(p, "sats")))
                     row(tr("精度估计", "Accuracy"), num(p, "accuracy_m").map { "≈ " + fmt($0, 0, " m") } ?? tr("未知", "Unknown"))

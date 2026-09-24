@@ -132,6 +132,10 @@ struct LightControlView: View {
                 r = 0; g = 0; b = 0
                 send { try await self.client?.setOff() }
             }
+            quickButton("呼吸", icon: "wind", color: PetPalTheme.primaryDeep) {
+                isOn = true
+                send { try await self.client?.setBreathe() }
+            }
             quickButton("满亮", icon: "sun.max.fill", color: PetPalTheme.warning) {
                 isOn = true
                 r = 255; g = 255; b = 255
