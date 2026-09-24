@@ -24,6 +24,7 @@ class Tests(unittest.TestCase):
         cls.fleet=cb.Fleet(); cls.mq=FakeMqtt(cls.fleet)
         cls.server=ThreadingHTTPServer(('127.0.0.1',0),cb.Handler); cls.server.token='test-only-token-1234'; cls.server.fleet=cls.fleet; cls.server.mqtt=cls.mq
         cls.url=f'http://127.0.0.1:{cls.server.server_port}/v1/devices/'
+        cb.LIVE_INTERVAL_S=1; cls.server.live=cb.LiveSessions(cls.fleet,cls.mq)
         threading.Thread(target=cls.server.serve_forever,daemon=True).start()
     @classmethod
     def tearDownClass(cls): cls.server.shutdown()
@@ -45,7 +46,25 @@ class Tests(unittest.TestCase):
     def test_auth_and_camera(self):
         self.assertEqual(self.req('collar-evt-003/snapshot',headers={'Authorization':'Bearer nope'})[0],401)
         self.assertEqual(self.req('collar-evt-003/snapshot',headers={'Origin':'https://evil.invalid'})[0],403)
-        self.assertEqual(self.req('collar-evt-003/camera/frame')[0],503)
+        self.assertEqual(self.req('collar-evt-777/camera/frame')[0],503,'offline collar: no live session')
+    def test_live_over_mqtt(self):
+        self.fleet.ingest('petpal/v1/collar-evt-003/telemetry',json.dumps({'device_id':'collar-evt-003'}))
+        jpeg=b'\xff\xd8live\xff\xd9'
+        def collar_frames(seq): self.fleet.ingest('petpal/v1/collar-evt-003/frame',b'PPF1%08x%08x'%(seq,seq*1000)+jpeg[:-1]+bytes([seq%250])+b'\xff\xd9')
+        threading.Timer(.3,collar_frames,args=(1,)).start(); threading.Timer(.9,collar_frames,args=(2,)).start()
+        req=Request(self.url+'collar-evt-003/camera/frame',headers={'Authorization':'Bearer test-only-token-1234'})
+        with urlopen(req,timeout=20) as r: f1=r.read()
+        self.assertEqual(r.headers['Content-Type'],'image/jpeg'); self.assertTrue(f1.startswith(b'\xff\xd8'))
+        starts=[json.loads(p) for t,p in self.mq.published if t.endswith('/cmd') and json.loads(p)['type']=='LIVE']
+        self.assertEqual(starts[-1]['args']['action'],'start'); self.assertIn('config',starts[-1]['args'])
+        with urlopen(req,timeout=20) as r: f2=r.read()
+        self.assertNotEqual(f1,f2,'each request gets a newer frame, never the same one twice')
+        # a stale frame (older than seq served) is never returned: with no new frame the request fails instead
+        cb.LIVE_INTERVAL_S=0
+        try:
+            with urlopen(req,timeout=20) as r: self.fail('served a stale frame')
+        except HTTPError as e: self.assertEqual(e.code,503)
+        finally: cb.LIVE_INTERVAL_S=1
     def test_command_roundtrip(self):
         self.fleet.ingest('petpal/v1/collar-evt-003/telemetry',json.dumps({'device_id':'collar-evt-003'}))
         c={'id':'cmd-12345678','device_id':'collar-evt-003','issued_at':1,'expires_at':121,'type':'LED','args':{'pattern':'on','duration_s':5}}

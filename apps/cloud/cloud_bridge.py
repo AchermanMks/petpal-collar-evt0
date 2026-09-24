@@ -16,11 +16,16 @@ import ssl
 import sys
 import threading
 import time
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import paho.mqtt.client as mqtt
 
-TOPIC_RE = re.compile(r'^petpal/v1/([A-Za-z0-9_-]{1,64})/(state|telemetry|event|ack|log)$')
+TOPIC_RE = re.compile(r'^petpal/v1/([A-Za-z0-9_-]{1,64})/(state|telemetry|event|ack|log|frame)$')
+LIVE_INTERVAL_S = float(os.environ.get('LIVE_INTERVAL_S', '2'))   # 4G still-frame period; full 640x480 ≈ 100 KB / frame (2 s ≈ 3 MB/min)
+LIVE_CONFIG = os.environ.get('LIVE_CONFIG', 'sum=crc32 crop=off quality=1')   # user choice 2026-09-23: default size; use x=160 y=120 w=320 h=240 for 4x less traffic
+LIVE_IDLE_STOP_S = 25      # no App request for this long -> LIVE stop (must exceed the longest frame wait below)
+LIVE_RENEW_S = 20          # firmware TTL is 30 s
 LOG_KEEP = 600            # lines kept per device (RAM only)
 HISTORY_S = 24 * 3600     # telemetry samples kept per device for the App's data panel
 HISTORY_FILE = os.environ.get('HISTORY_FILE', '')   # optional persistence across restarts
@@ -65,6 +70,14 @@ class Fleet:
         if not m:
             return
         dev, kind = m.groups()
+        if kind == 'frame':
+            # binary: "PPF1" + 8 hex seq + 8 hex device ms + JPEG
+            if len(payload) < 24 or payload[:4] != b'PPF1' or payload[20:22] != b'\xff\xd8' or payload[-2:] != b'\xff\xd9': return
+            with self.cv:
+                rec = self.devices.setdefault(dev, {}); rec['seen'] = time.monotonic()
+                rec['frame'] = (int(payload[4:12], 16), bytes(payload[20:]), time.monotonic())
+                self.cv.notify_all()
+            return
         try:
             d = json.loads(payload)
         except Exception:
@@ -121,6 +134,17 @@ class Fleet:
             return {'device_id': dev, 'online': online, 'last_seen_ts': time.time() - age,
                     'transport': 'mqtt-4g', 'state': st, 'telemetry': t}
 
+    def wait_frame(self, dev, newer_than, seconds):
+        """Latest live frame with seq > newer_than, waiting up to `seconds` for one to arrive."""
+        deadline = time.monotonic() + seconds
+        with self.cv:
+            while True:
+                f = (self.devices.get(dev) or {}).get('frame')
+                if f and f[0] > newer_than and time.monotonic() - f[2] < 3 * LIVE_INTERVAL_S + 5: return f
+                left = deadline - time.monotonic()
+                if left <= 0: return None
+                self.cv.wait(left)
+
     def logs(self, dev, n):
         with self.lock:
             rec = self.devices.get(dev)
@@ -139,6 +163,44 @@ class Fleet:
                 if left <= 0:
                     return a[0] if a else None
                 self.cv.wait(left)
+
+
+class LiveSessions:
+    """One 4G live session per device: LIVE start on first request, renewed while requests keep coming, stopped when idle."""
+    def __init__(self, fleet, mq):
+        self.fleet = fleet; self.mq = mq; self.lock = threading.Lock(); self.s = {}   # dev -> {'last_req','last_renew','served_seq'}
+        threading.Thread(target=self._reaper, daemon=True).start()
+
+    def _send(self, dev, action, extra=None):
+        now = int(time.time()); cid = 'live-' + uuid.uuid4().hex[:24]
+        c = {'id': cid, 'device_id': dev, 'issued_at': now, 'expires_at': now + 60, 'type': 'LIVE', 'args': {'action': action, **(extra or {})}}
+        self.mq.publish(f'petpal/v1/{dev}/cmd', json.dumps(c, separators=(',', ':')), qos=1)
+        return cid
+
+    def touch(self, dev):
+        """Called on every frame request. Returns (served_seq, first_request)."""
+        with self.lock:
+            st = self.s.get(dev); now = time.monotonic(); first = st is None
+            if first:
+                st = self.s[dev] = {'last_req': now, 'last_renew': now, 'served_seq': 0}
+            elif now - st['last_renew'] > LIVE_RENEW_S:
+                st['last_renew'] = now; renew = True
+            else: renew = False
+            st['last_req'] = now
+        # Config goes with every start, not just the first: a start can be dropped (collar clock not yet synced right after
+        # boot) and a later renew must still bring the crop/quality, otherwise the collar streams full-size frames it then discards.
+        if first or renew: self._send(dev, 'start', {'interval_s': LIVE_INTERVAL_S, 'config': dict(kv.split('=') for kv in LIVE_CONFIG.split())})
+        return st, first
+
+    def _reaper(self):
+        while True:
+            time.sleep(2)
+            with self.lock:
+                idle = [d for d, st in self.s.items() if time.monotonic() - st['last_req'] > LIVE_IDLE_STOP_S]
+                for d in idle: del self.s[d]
+            for d in idle:
+                try: self._send(d, 'stop')
+                except Exception: pass
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -168,7 +230,17 @@ class Handler(BaseHTTPRequestHandler):
         if not m: return self.send(404, {'error': 'Unknown endpoint'})
         dev, kind, cid = m.groups()
         if kind == 'camera/frame':
-            return self.send(503, {'error': '远程实况未启用：4G 链路只传状态与命令，实况请用 USB 台架'})
+            if not self.server.fleet.snapshot(dev): return self.send(503, {'error': '项圈离线，无法开启 4G 实况'})
+            st, first = self.server.live.touch(dev)
+            f = self.server.fleet.wait_frame(dev, st['served_seq'], 15 if first else LIVE_INTERVAL_S + 8)
+            if not f:
+                with self.server.live.lock: st['last_req'] = time.monotonic()
+                cam = ((self.server.fleet.snapshot(dev) or {}).get('telemetry') or {}).get('camera') or {}
+                why = cam.get('error') or ('项圈未响应或流量/信号受限')
+                return self.send(503, {'error': '4G 实况未收到新画面：%s' % why})
+            with self.server.live.lock: st['served_seq'] = f[0]; st['last_req'] = time.monotonic()   # a request that just waited is not idle
+            self.send_response(200); self.send_header('Content-Type', 'image/jpeg'); self.send_header('Cache-Control', 'no-store')
+            self.send_header('Content-Length', str(len(f[1]))); self.end_headers(); self.wfile.write(f[1]); return
         if kind == 'logs' and not cid:
             m2 = re.search(r'[?&]lines=(\d+)', self.path); n = min(600, max(1, int(m2.group(1)) if m2 else 100))
             lines = self.server.fleet.logs(dev, n)
@@ -204,7 +276,7 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(c, dict) or not isinstance(c.get('id'), str) or not re.fullmatch(r'[a-zA-Z0-9-]{8,64}', c['id']):
             return self.send(400, {'error': 'Invalid command id'})
         if c.get('device_id') != dev: return self.send(400, {'error': 'Wrong device'})
-        if c.get('type') not in ('GET_STATE', 'LOCATE_NOW', 'SET_MODE', 'SET_GEOFENCE', 'LED', 'VIBRATE', 'STOP', 'BUZZ', 'LOG_UPLOAD', 'GSENSOR_TUNE'):
+        if c.get('type') not in ('GET_STATE', 'LOCATE_NOW', 'SET_MODE', 'SET_GEOFENCE', 'LED', 'VIBRATE', 'STOP', 'BUZZ', 'LOG_UPLOAD', 'GSENSOR_TUNE', 'LIVE'):
             return self.send(422, {'error': 'Hardware feature not implemented/verified'})
         if not self.server.fleet.snapshot(dev):
             return self.send(503, {'error': '项圈离线或从未上线，命令未发送'})
@@ -228,14 +300,14 @@ def main():
     cl.username_pw_set(os.environ['MQTT_USER'], os.environ['MQTT_PASS'])
     if os.environ.get('MQTT_TLS') == '1':
         cl.tls_set(tls_version=ssl.PROTOCOL_TLS_CLIENT)
-    cl.on_connect = lambda c, u, f, rc, p=None: c.subscribe([('petpal/v1/+/state', 1), ('petpal/v1/+/telemetry', 1), ('petpal/v1/+/event', 1), ('petpal/v1/+/ack', 1), ('petpal/v1/+/log', 1)])
+    cl.on_connect = lambda c, u, f, rc, p=None: c.subscribe([('petpal/v1/+/state', 1), ('petpal/v1/+/telemetry', 1), ('petpal/v1/+/event', 1), ('petpal/v1/+/ack', 1), ('petpal/v1/+/log', 1), ('petpal/v1/+/frame', 0)])
     cl.on_message = lambda c, u, m: fleet.ingest(m.topic, m.payload)
     cl.reconnect_delay_set(2, 30)
     cl.connect(os.environ.get('MQTT_HOST', '127.0.0.1'), int(os.environ.get('MQTT_PORT', '1883')), keepalive=60)
     cl.loop_start()
     port = int(os.environ.get('HTTP_PORT', '8211'))
     server = ThreadingHTTPServer(('127.0.0.1', port), Handler)
-    server.token = token; server.fleet = fleet; server.mqtt = cl
+    server.token = token; server.fleet = fleet; server.mqtt = cl; server.live = LiveSessions(fleet, cl)
     def saver():
         while True:
             time.sleep(120)
